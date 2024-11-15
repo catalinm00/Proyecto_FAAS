@@ -1,10 +1,31 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ActivateFunctionListener } from './messaging/listener/ActivateFunctionListener';
+import { ExecuteFunctionService } from './service/ExecuteFunctionService';
+import { DockerConfig } from './config/DockerConfig';
+import { NatsService } from './service/NatsService';
+import * as process from 'node:process';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `../.env.${process.env.NODE_ENV || 'dev'}`,
+    }),
+    ClientsModule.register([
+      {
+        name: 'NATS_CLIENT',
+        transport: Transport.NATS,
+        options: {
+          servers: [process.env.NATS_SERVER || 'nats://localhost:4222'],
+        },
+      },
+    ]),
+  ],
+  controllers: [AppController, ActivateFunctionListener],
+  providers: [AppService, DockerConfig, ExecuteFunctionService, NatsService],
 })
 export class AppModule {}
