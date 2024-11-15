@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { FFunction } from '../model/FFunction';
 
 @Injectable()
-export class NatsService {
+export class NatsService { // TODO: remove from final version, class for test purpose only
   private readonly _logger: Logger = new Logger('NatsService');
   constructor(@Inject('NATS_CLIENT') private readonly client: ClientProxy) {}
 

@@ -11,7 +11,7 @@ export class ActivateFunctionListener {
     private readonly executeFunctionService: ExecuteFunctionService,
   ) {}
 
-  @EventPattern('activate-function')
+  @EventPattern('activate-function') // TODO: Change to MessagePattern for synchronous communication when API Server is implemented
   async listen(@Payload() event: ActivateFunctionEvent): Promise<void> {
     this.logger.log('Event: ' + JSON.stringify(event));
     await this.executeFunctionService.execute(new FFunction(event.getImage()));
