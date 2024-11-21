@@ -1,7 +1,5 @@
-export class ActivateFunctionEvent {
-  constructor(private image: string) {}
+import { FFunction } from '../../model/FFunction';
 
-  getImage(): string {
-    return this.image;
-  }
+export class ActivateFunctionEvent {
+  image: string
 }
