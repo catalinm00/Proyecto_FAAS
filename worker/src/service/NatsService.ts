@@ -7,11 +7,7 @@ export class NatsService { // TODO: remove from final version, class for test pu
   private readonly _logger: Logger = new Logger('NatsService');
   constructor(@Inject('NATS_CLIENT') private readonly client: ClientProxy) {}
 
-  sendMessage(queue: string, message: FFunction) {
-    this.client.emit(queue, message).subscribe({
-      next: (next) => {
-        this._logger.log(next);
-      },
-    });
+  async sendMessage(queue: string, message: FFunction): Promise<string> {
+     return await this.client.send(queue, message, ).toPromise();
   }
 }
