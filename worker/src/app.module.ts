@@ -6,7 +6,7 @@ import { ActivateFunctionListener } from './messaging/listener/ActivateFunctionL
 import { NatsService } from './service/NatsService';
 import * as process from 'node:process';
 import { DockerClient } from './config/docker';
-import { ExecuteFunctionServiceAlt } from './service/execute-function-service-alt';
+import { ExecuteFunctionService } from './service/execute-function-service';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { ExecuteFunctionServiceAlt } from './service/execute-function-service-al
     }]),
   ],
   controllers: [ ActivateFunctionListener, AppController],
-  providers: [NatsService, DockerClient, ExecuteFunctionServiceAlt],
+  providers: [NatsService, DockerClient, ExecuteFunctionService],
 })
 export class AppModule {
 }

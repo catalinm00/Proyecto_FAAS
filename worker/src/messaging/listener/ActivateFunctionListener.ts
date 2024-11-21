@@ -1,8 +1,8 @@
 import { Controller, Logger } from '@nestjs/common';
 import { ActivateFunctionEvent } from '../event/ActivateFunctionEvent';
-import { ExecuteFunctionService } from '../../service/ExecuteFunctionService';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FFunction } from '../../model/FFunction';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { ExecuteFunctionService } from '../../service/execute-function-service';
 
 @Controller()
 export class ActivateFunctionListener {
@@ -11,9 +11,9 @@ export class ActivateFunctionListener {
     private readonly executeFunctionService: ExecuteFunctionService,
   ) {}
 
-  @EventPattern('activate-function') // TODO: Change to MessagePattern for synchronous communication when API Server is implemented
-  async listen(@Payload() event: ActivateFunctionEvent): Promise<void> {
-    this.logger.log('Event: ' + JSON.stringify(event));
-    await this.executeFunctionService.execute(new FFunction(event.getImage()));
+  @MessagePattern('activate')
+  listen(@Payload() event: ActivateFunctionEvent) {
+    this.logger.log('Event received: ' + JSON.stringify(event));
+    return this.executeFunctionService.execute(new FFunction(event.image));
   }
 }
