@@ -25,35 +25,23 @@ export class ExecuteFunctionService {
       follow: false,
       stdout: true,
       stderr: true,
+      timestamps: true,
     }) as Stream;
-    logStream.on('data', (d) => logs+=d.toString());
+    logStream.on('data', (d) => logs += d.toString());
 
     await new Promise((resolve, reject) => {
       logStream.on('end', resolve);
       logStream.on('error', reject);
     });
-
     this.logger.log('Container logs: ' + logs);
+    //TODO: usar un evento de dominio de función ejecutada para parar y eliminar el contenedor
+    // con tal de obtener un mejor tiempo de respuesta
+    await container.stop();
+    await container.delete();
     return logs;
-
-    /* let _container;
-     let logs: string = '';
-     this.containerRuntime.container.create({
-       Image: func.getImage(),
-       name: 'test',
-       AttachStdout: true,
-     })
-       .then(container => {
-         return container.start();
-       })
-       .then(container => container.stop())
-       .then(container => container.delete())
-       .catch(error => this.logger.log(error));
-     return logs;*/
-
   }
 
-  pullImageIfNecessary(image: string) {
+  private pullImageIfNecessary(image: string) {
     let imageNameParts = image.split(':');
     let tag = imageNameParts.length > 1 ? imageNameParts[1] : 'latest';
     this.containerRuntime.image.list({})
@@ -74,21 +62,6 @@ export class ExecuteFunctionService {
       stream.on('data', (d) => this.logger.log(d.toString()));
       stream.on('end', resolve);
       stream.on('error', reject);
-    });
-  }
-
-  private getContainerLogs(container, logs: string) {
-    return new Promise((resolve, reject) => {
-      container.logs({
-        follow: true,
-        stdout: true,
-        stderr: true,
-      })
-        .then(stream => {
-          stream.on('data', (d) => logs += d.toString()),
-            stream.on('error', err => logs += err.toString()),
-            stream.on('end', resolve);
-        });
     });
   }
 
