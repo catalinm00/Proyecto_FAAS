@@ -1,0 +1,18 @@
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "6222:6222"
+      - "8222:8222"
+  worker:
+    build: ./worker/
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      NODE_ENV: pro
+    volumes:
+      - //var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - nats
