@@ -30,6 +30,8 @@
 
 ```bash
 $ npm install
+# generate schemas for prisma orm
+$ npm run prisma:generate
 ```
 
 ## Compile and run the project
