@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { FunctionModule } from './function/function.module';
 import { ConfigModule } from '@nestjs/config';
 import { SharedModule } from './shared/shared.module';
-import { CreateUser } from './user/application/use-case/create-user';
+import { SwaggerModule } from '@nestjs/swagger';
 
 @Module({
   imports: [
@@ -15,6 +15,7 @@ import { CreateUser } from './user/application/use-case/create-user';
     UserModule,
     FunctionModule,
     SharedModule,
+    SwaggerModule
   ],
   controllers: [AppController],
   providers: [AppService],
