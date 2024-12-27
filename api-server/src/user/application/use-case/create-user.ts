@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../domain/repository/user-repository';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
 import { CreateUserCommand } from '../command/create-user-command';

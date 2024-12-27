@@ -3,12 +3,12 @@ import { UserController } from './infrastructure/controller/user-controller/user
 import { CreateUser } from './application/use-case/create-user';
 import { MongoUserRepository } from './infrastructure/database/mongo-user-repository';
 import { BcryptService } from './infrastructure/config/criptography/bcrypt-service';
-import { AuthModule } from 'src/authentication/authentication.module';
+import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ApisixService } from 'src/authentication/apisix.service';
 
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthenticationModule],
   controllers: [UserController],
   providers: [MongoUserRepository, BcryptService, CreateUser, ApisixService],
 })

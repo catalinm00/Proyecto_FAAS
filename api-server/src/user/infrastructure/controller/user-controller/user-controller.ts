@@ -3,7 +3,7 @@ import { AuthService } from 'src/authentication/auth.service';
 import { CreateUserRequest } from '../request/create-user-request';
 import { CreateUser } from '../../../application/use-case/create-user';
 import { CreateUserCommand } from '../../../application/command/create-user-command';
-import { ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiResponse } from '@nestjs/swagger';
 import { ApisixService } from 'src/authentication/apisix.service';
 
 @Controller('api/v1/users')
