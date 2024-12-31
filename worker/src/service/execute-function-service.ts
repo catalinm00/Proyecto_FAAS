@@ -7,9 +7,9 @@ import { Stream } from 'stream';
 export class ExecuteFunctionService {
   private readonly logger: Logger = new Logger(ExecuteFunctionService.name);
 
-  constructor(@Inject('DOCKER_CLIENT') private readonly containerRuntime: Docker) {
-  }
-
+  constructor(
+    @Inject('DOCKER_CLIENT') private readonly containerRuntime: Docker,
+  ) {}
 
   async execute(func: FFunction) {
     this.pullImageIfNecessary(func.getImage());
@@ -17,17 +17,17 @@ export class ExecuteFunctionService {
       Image: func.getImage(),
       AttachStdout: true,
       AttachStdErr: true,
-    })
+    });
 
     await container.start();
     let logs: string = '';
-    const logStream: Stream = await container.logs({
+    const logStream: Stream = (await container.logs({
       follow: false,
       stdout: true,
       stderr: true,
       timestamps: true,
-    }) as Stream;
-    logStream.on('data', (d) => logs += d.toString());
+    })) as Stream;
+    logStream.on('data', (d) => (logs += d.toString()));
 
     await new Promise((resolve, reject) => {
       logStream.on('end', resolve);
@@ -44,16 +44,18 @@ export class ExecuteFunctionService {
   private pullImageIfNecessary(image: string) {
     let imageNameParts = image.split(':');
     let tag = imageNameParts.length > 1 ? imageNameParts[1] : 'latest';
-    this.containerRuntime.image.list({})
-      .then(images => images
-        .find(image => image.data['RepoTags']
-          .find(tag => tag.includes(image)),
+    this.containerRuntime.image
+      .list({})
+      .then((images) =>
+        images.find((image) =>
+          image.data['RepoTags'].find((tag) => tag.includes(image)),
         ),
       )
       .then(() => this.logger.log('Image already exist, pull is not needed'))
       .catch(() =>
-        this.containerRuntime.image.create({}, { fromImage: image, tag: tag })
-          .then(stream => this.promisifyStream(stream as Stream)),
+        this.containerRuntime.image
+          .create({}, { fromImage: image, tag: tag })
+          .then((stream) => this.promisifyStream(stream as Stream)),
       );
   }
 
@@ -64,5 +66,4 @@ export class ExecuteFunctionService {
       stream.on('error', reject);
     });
   }
-
 }

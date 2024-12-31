@@ -15,26 +15,30 @@ export class MongoUserRepository implements UserRepository {
     this.prisma.user.delete({
       where: {
         id: user.id,
-      }
+      },
     });
   }
 
   async findByEmail(email: string): Promise<User | null> {
     const result = await this.prisma.user.findFirst({
       where: {
-        email: email
-      }
+        email: email,
+      },
     });
-    if (!result) {return null}
+    if (!result) {
+      return null;
+    }
     return new User(result.email, result.password, result.id);
   }
 
   async save(user: User): Promise<User> {
-    const result = await this.prisma.user.create({data: {
-      email: user.email, password: user.password, id: undefined
-      }});
+    const result = await this.prisma.user.create({
+      data: {
+        email: user.email,
+        password: user.password,
+        id: undefined,
+      },
+    });
     return new User(result.email, result.password, result.id);
   }
-
-
 }

@@ -6,7 +6,6 @@ import { BcryptService } from './infrastructure/config/criptography/bcrypt-servi
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ApisixService } from 'src/authentication/apisix.service';
 
-
 @Module({
   imports: [AuthenticationModule],
   controllers: [UserController],

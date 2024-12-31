@@ -18,3 +18,12 @@ model User {
   email String @unique
   password String
 }
+
+model FasFunction {
+  id String @id @map("_id") @default(auto()) @db.ObjectId
+  userId String 
+  active Boolean
+  image String @unique
+  @@index([userId])
+  @@index([userId,image])
+}
