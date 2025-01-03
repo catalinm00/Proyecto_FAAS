@@ -1,5 +1,8 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
+import { CreateFunctionRequest } from '../request/create-function-request';
+import { CreateFunctionCommand } from 'src/function/application/command/create-function-command';
 
 @Controller('api/v1/functions')
 export class FunctionController {
@@ -13,7 +16,7 @@ export class FunctionController {
     description: 'Function created successfully.',
   })
   async createFunction(@Body() request: CreateFunctionRequest) {
-    this.logger.log('Received request: ' + request.email);
+    this.logger.log('Received request: ' + request.image + request.userId);
 
     const command: CreateFunctionCommand = {
       image: request.image,
