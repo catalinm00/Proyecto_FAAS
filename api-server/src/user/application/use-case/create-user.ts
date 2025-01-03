@@ -25,7 +25,7 @@ export class CreateUser {
     if (user) {
       throw Error('User already exists');
     }
-    let encryptedPassword = await this.cryptographyService.encrypt(
+    const encryptedPassword = await this.cryptographyService.encrypt(
       command.password,
     );
     await this.userRepository.save(new User(command.email, encryptedPassword));

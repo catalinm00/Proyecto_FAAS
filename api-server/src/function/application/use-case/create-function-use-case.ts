@@ -12,9 +12,11 @@ export class CreateFunctionUseCase {
     this.functionRepository = functionRepository;
   }
 
-  execute(command: CreateFunctionCommand): CreateFunctionResponse {
+  async execute(
+    command: CreateFunctionCommand,
+  ): Promise<CreateFunctionResponse> {
     let faasFunction: FaasFunction =
-      this.functionRepository.findByUserIdAndImage(
+      await this.functionRepository.findByUserIdAndImage(
         command.userId,
         command.image,
       );
@@ -22,7 +24,7 @@ export class CreateFunctionUseCase {
       throw new Error('Error - Function already exists!');
     }
     faasFunction = new FaasFunction(command.image, command.userId);
-    faasFunction = this.functionRepository.save(faasFunction);
+    faasFunction = await this.functionRepository.save(faasFunction);
     return CreateFunctionResponse.of(faasFunction);
   }
 }
