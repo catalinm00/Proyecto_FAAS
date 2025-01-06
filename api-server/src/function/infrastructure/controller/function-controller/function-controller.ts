@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Post , Delete} from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
 import { CreateFunctionRequest } from '../request/create-function-request';
@@ -35,7 +35,7 @@ export class FunctionController {
     };
   }
 
-  @Delete()
+  @Delete()///functions/{id}
   @ApiResponse({
     status: 201,
     description: 'Function deleted successfully.',
