@@ -4,7 +4,7 @@ import { FaasFunctionRepository } from 'src/function/domain/repository/faasfunct
 import { PrismaService } from 'src/shared/config/db/prisma/PrismaService';
 
 @Injectable()
-export class MongoFaasFunctionReporitory implements FaasFunctionRepository {
+export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   private readonly prisma: PrismaService;
 
   constructor(prisma: PrismaService) {
