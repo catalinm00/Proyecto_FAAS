@@ -41,12 +41,11 @@ export class FunctionController {
     description: 'Function deleted successfully.',
   })
   async deleteFunction(
-    @Body('functionId') functionId: string,
-    @Body('userId') userId: string,
+    @Body() request: DeleteFunctionRequest,
   ) {
-    this.logger.log(`Deleting function with ID: ${functionId} for user: ${userId}`);
+    this.logger.log(`Deleting function with ID: ${request.functionId} for user: ${request.userId}`);
 
-    const command = new DeleteFunctionCommand(functionId, userId);
+    const command = new DeleteFunctionCommand(request.functionId, request.userId);
     await this.deleteFunctionService.execute(command);
 
     return {
