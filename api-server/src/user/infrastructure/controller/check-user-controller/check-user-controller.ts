@@ -7,8 +7,8 @@ import { CreateUserCommand } from '../../../application/command/create-user-comm
 import { ApiResponse } from '@nestjs/swagger';
 import { ApisixService } from 'src/authentication/apisix.service';
 
-@Controller('api/v1/users')
-export class UserController {
+@Controller('api/v1/users/login')
+export class loginController {
   private readonly logger = new Logger('UserController');
   //private readonly createUserService: CreateUser;
   /*
@@ -16,34 +16,36 @@ export class UserController {
     this.createUserService = createUserService;
   }*/
   constructor(
-    private readonly createUserService: CreateUser,
-    private readonly apisixService: ApisixService, // Inyectar ApisixService
+    private readonly checkUserService : CheckUser,
+    private readonly authService: AuthService, // Inyectar AuthService
+    
   ) {}
-
 
   @Post()
   @ApiResponse({
     status: 201,
-    description: 'User created hola successfully.',
+    description: 'User logged successfully.',
   })
-  async createUser(@Body() request: CreateUserRequest) {
+  async loginUser(@Body() request: CreateUserRequest){
     this.logger.log("Received request: " + request.email);
 
-    const command: CreateUserCommand = { 
+    //Verificar si está registrado
+    const command: CreateUserCommand = {
       email: request.email, 
       password: request.password 
-    };
-    await this.createUserService.execute(command);
+    }
+    await this.checkUserService.execute(command);
 
-    // Registrar al consumidor en APISIX con el email como secret
-    // AÑADIR EL ID??
-    await this.apisixService.registerConsumer(
-      request.email, // username en APISIX
-    );
-    await this.apisixService.createGlobalProtectedRoute();
-    
+    //Generar token usando email como secret
+    //ESTO DEBE DE IR EN EL HACER LOGIN
+    const token = await this.authService.generateToken({
+      username: request.email,
+      email: request.email,
+    });
+
     return {
-      message: 'User created successfully.',
+      message: 'User logged successfully.',
+      token,
     };
   }
 }

@@ -14,4 +14,10 @@ export class BcryptService implements CryptographyService {
     return bcrypt.hash(data+saltingWord, salt);
   }
 
+  async compare(password: string, hash: string): Promise<boolean> {
+    const saltingWord = this.configService.get('SALTING_WORD'); // Recuperar el mismo saltingWord usado en encrypt
+    return bcrypt.compare(password + saltingWord, hash); // Concatenar saltingWord antes de comparar
+  }
+  
+
 }
