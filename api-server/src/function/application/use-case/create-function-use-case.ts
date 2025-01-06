@@ -3,12 +3,13 @@ import { FaasFunctionRepository } from 'src/function/domain/repository/faasfunct
 import { CreateFunctionCommand } from '../command/create-function-command';
 import { CreateFunctionResponse } from '../response/create-function-response';
 import { FaasFunction } from 'src/function/domain/model/faasfunction';
+import { MongoFaasFunctionRepository } from '../../infrastructure/database/mongo-faasfunction-repository';
 
 @Injectable()
 export class CreateFunctionUseCase {
   private readonly functionRepository: FaasFunctionRepository;
 
-  constructor(functionRepository: FaasFunctionRepository) {
+  constructor(functionRepository: MongoFaasFunctionRepository) {
     this.functionRepository = functionRepository;
   }
 
