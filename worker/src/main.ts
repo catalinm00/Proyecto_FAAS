@@ -11,7 +11,7 @@ async function bootstrap() {
     transport: Transport.NATS,
     options: {
       servers: [configService.get('NATS_SERVER', 'nats://localhost:4222')],
-      queue: configService.get('NATS_QUEUE', 'function')
+      queue: configService.get('NATS_QUEUE', 'function'),
     },
   });
 

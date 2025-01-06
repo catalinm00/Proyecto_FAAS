@@ -6,7 +6,7 @@ export const DockerClient: Provider = {
   provide: 'DOCKER_CLIENT',
   useFactory: () => {
     return new Docker({
-      socketPath: process.env.DOCKER_DAEMON_HOST
-    })
-  }
-}
+      socketPath: process.env.DOCKER_DAEMON_HOST,
+    });
+  },
+};

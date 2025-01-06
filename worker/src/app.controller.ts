@@ -12,8 +12,8 @@ export class AppController {
   }
 
   @Post('send')
-  async send(@Body('image') image: FFunction, @Body('queue') queue: string) {
+  async send(@Body('image') image: string, @Body('queue') queue: string) {
     this.logger.log(`image: ${JSON.stringify(image)}, queue: ${queue}`);
-    return await this.nats.sendMessage(queue, image);
+    return await this.nats.sendMessage(queue, new FFunction(image));
   }
 }

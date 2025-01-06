@@ -20,18 +20,17 @@ export class UserController {
     private readonly apisixService: ApisixService, // Inyectar ApisixService
   ) {}
 
-
   @Post()
   @ApiResponse({
     status: 201,
     description: 'User created successfully.',
   })
   async createUser(@Body() request: CreateUserRequest) {
-    this.logger.log("Received request: " + request.email);
+    this.logger.log('Received request: ' + request.email);
 
-    const command: CreateUserCommand = { 
-      email: request.email, 
-      password: request.password 
+    const command: CreateUserCommand = {
+      email: request.email,
+      password: request.password,
     };
     await this.createUserService.execute(command);
 
@@ -46,7 +45,7 @@ export class UserController {
       request.email, // username en APISIX
     );
     await this.apisixService.createGlobalProtectedRoute();
-    
+
     return {
       message: 'User created successfully.',
       token,

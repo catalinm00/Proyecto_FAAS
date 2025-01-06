@@ -9,7 +9,6 @@ export class User {
     this._id = id;
   }
 
-
   get id(): string {
     return this._id;
   }
