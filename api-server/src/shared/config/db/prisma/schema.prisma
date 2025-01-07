@@ -14,16 +14,25 @@ datasource db {
 }
 
 model User {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
-  email String @unique
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  email    String @unique
   password String
 }
 
-model FasFunction {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
-  userId String 
+model FaasFunction {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String
   active Boolean
-  image String @unique
+  image  String  @unique
+
   @@index([userId])
-  @@index([userId,image])
+  @@index([userId, image])
+}
+
+model FaasFunctionExecution {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  finished   Boolean
+  functionId String
+
+  @@index([finished])
 }

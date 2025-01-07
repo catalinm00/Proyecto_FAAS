@@ -1,11 +1,14 @@
-import { Body, Controller, Logger, Post , Delete} from '@nestjs/common';
+import { Body, Controller, Logger, Post, Delete } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
 import { CreateFunctionRequest } from '../request/create-function-request';
 import { CreateFunctionCommand } from 'src/function/application/command/create-function-command';
 import { DeleteFunctionCommand } from 'src/function/application/command/delete-function-command';
-import { DeleteFunctionRequest} from '../request/delete-function-request';
-import { DeleteFunctionUseCase } from 'src/function/application/use-case/delete-function-use-case'; 
+import { DeleteFunctionRequest } from '../request/delete-function-request';
+import { DeleteFunctionUseCase } from 'src/function/application/use-case/delete-function-use-case';
+import { ExecuteFunctionRequest } from '../request/execute-function-request';
+import { ExecuteFunctionUseCase } from '../../../application/use-case/execute-function-usecase';
+import { ExecuteFunctionCommand } from '../../../application/command/execute-function-command';
 
 @Controller('api/v1/functions')
 export class FunctionController {
@@ -14,7 +17,9 @@ export class FunctionController {
   constructor(
     private readonly createFunctionService: CreateFunctionUseCase,
     private readonly deleteFunctionService: DeleteFunctionUseCase,
-  ) {}
+    private readonly executeFunctionService: ExecuteFunctionUseCase,
+  ) {
+  }
 
   @Post()
   @ApiResponse({
@@ -51,5 +56,11 @@ export class FunctionController {
     return {
       message: 'Function deleted successfully.',
     };
+  }
+
+  @Post('/execute')
+  async executeFunction(@Body() request: ExecuteFunctionRequest) {
+    let command: ExecuteFunctionCommand = new ExecuteFunctionCommand(request.functionId, request.userId);
+    return await this.executeFunctionService.execute(command);
   }
 }
