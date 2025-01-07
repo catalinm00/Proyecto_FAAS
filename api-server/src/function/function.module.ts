@@ -8,9 +8,10 @@ import {
 } from './application/service/faas-function-dispatcher/faas-function-assigner.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import process from 'node:process';
-import { config } from 'rxjs';
 import { ExecuteFunctionUseCase } from './application/use-case/execute-function-usecase';
-import { FunctionExecutionCompletedSubscriber } from './infrastructure/messaging/function-execution-completed-subscriber';
+import {
+  FunctionExecutionCompletedSubscriber,
+} from './infrastructure/messaging/function-execution-completed-subscriber';
 
 @Module({
   imports: [
