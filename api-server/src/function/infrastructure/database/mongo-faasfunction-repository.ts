@@ -46,8 +46,8 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
     });
     return functions.length > 0
       ? functions.map(
-        (func) => new FaasFunction(func.image, func.userId, func.id),
-      )
+          (func) => new FaasFunction(func.image, func.userId, func.id),
+        )
       : null;
   }
 

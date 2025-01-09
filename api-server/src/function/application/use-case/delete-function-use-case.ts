@@ -6,9 +6,13 @@ import { MongoFaasFunctionRepository } from 'src/function/infrastructure/databas
 
 @Injectable()
 export class DeleteFunctionUseCase {
-  constructor(private readonly functionRepository: MongoFaasFunctionRepository) {}
+  constructor(
+    private readonly functionRepository: MongoFaasFunctionRepository,
+  ) {}
 
-  async execute(command: DeleteFunctionCommand): Promise<DeleteFunctionResponse> {
+  async execute(
+    command: DeleteFunctionCommand,
+  ): Promise<DeleteFunctionResponse> {
     const func = await this.functionRepository.findById(command.functionId);
     if (!func) {
       throw new Error('Function not found');

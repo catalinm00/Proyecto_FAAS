@@ -10,6 +10,6 @@ import { ApisixService } from 'src/authentication/apisix.service';
   imports: [AuthenticationModule],
   controllers: [UserController],
   providers: [MongoUserRepository, BcryptService, CreateUser, ApisixService],
-  exports: [MongoUserRepository]
+  exports: [MongoUserRepository],
 })
 export class UserModule {}

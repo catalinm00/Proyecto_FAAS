@@ -1,11 +1,11 @@
 import { FaasFunction } from './faasfunction';
 
 export class FaasFunctionExecution {
-  constructor(private readonly _functionId: string,
-              private _finished: boolean = false,
-              private readonly _id?: string) {
-  }
-
+  constructor(
+    private readonly _functionId: string,
+    private _finished: boolean = false,
+    private readonly _id?: string,
+  ) {}
 
   static of(func: FaasFunction): FaasFunctionExecution {
     return new FaasFunctionExecution(func.id, false);
@@ -14,7 +14,6 @@ export class FaasFunctionExecution {
   finish(): void {
     this._finished = true;
   }
-
 
   get functionId(): string {
     return this._functionId;
@@ -27,7 +26,6 @@ export class FaasFunctionExecution {
   get id(): string {
     return this._id;
   }
-
 
   set finished(value: boolean) {
     this._finished = value;

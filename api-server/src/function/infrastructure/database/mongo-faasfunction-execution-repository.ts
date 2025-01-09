@@ -4,7 +4,9 @@ import { PrismaService } from '../../../shared/config/db/prisma/PrismaService';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class MongoFaasFunctionExecutionRepository implements FaasFunctionExecutionRepository {
+export class MongoFaasFunctionExecutionRepository
+  implements FaasFunctionExecutionRepository
+{
   private readonly prisma: PrismaService;
 
   constructor(prisma: PrismaService) {
@@ -15,8 +17,8 @@ export class MongoFaasFunctionExecutionRepository implements FaasFunctionExecuti
     return this.prisma.faasFunctionExecution.count({
       where: {
         finished: false,
-      }
-    })
+      },
+    });
   }
 
   async save(execution: FaasFunctionExecution): Promise<FaasFunctionExecution> {
@@ -27,25 +29,34 @@ export class MongoFaasFunctionExecutionRepository implements FaasFunctionExecuti
           id: execution.id,
           finished: execution.finished,
           functionId: execution.functionId,
-        }
-      })
+        },
+      });
     } else {
       saved = this.prisma.faasFunctionExecution.update({
-        where: {id: execution.id},
-        data: {finished: execution.finished,}
+        where: { id: execution.id },
+        data: { finished: execution.finished },
       });
     }
-    return new FaasFunctionExecution(saved.functionId, saved.finished, saved.id);
+    return new FaasFunctionExecution(
+      saved.functionId,
+      saved.finished,
+      saved.id,
+    );
   }
 
   async findById(executionId: string): Promise<FaasFunctionExecution | null> {
     const result = await this.prisma.faasFunctionExecution.findFirst({
       where: {
         id: executionId,
-      }
+      },
     });
-    if (!result) {return null;}
-    return new FaasFunctionExecution(result.functionId, result.finished, result.id);
+    if (!result) {
+      return null;
+    }
+    return new FaasFunctionExecution(
+      result.functionId,
+      result.finished,
+      result.id,
+    );
   }
-
 }

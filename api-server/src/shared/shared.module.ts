@@ -10,5 +10,4 @@ import { MongoUserRepository } from '../user/infrastructure/database/mongo-user-
   providers: [PrismaService],
   exports: [PrismaService],
 })
-export class SharedModule {
-}
+export class SharedModule {}

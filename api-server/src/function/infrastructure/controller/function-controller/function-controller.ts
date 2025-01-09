@@ -18,8 +18,7 @@ export class FunctionController {
     private readonly createFunctionService: CreateFunctionUseCase,
     private readonly deleteFunctionService: DeleteFunctionUseCase,
     private readonly executeFunctionService: ExecuteFunctionUseCase,
-  ) {
-  }
+  ) {}
 
   @Post()
   @ApiResponse({
@@ -40,17 +39,20 @@ export class FunctionController {
     };
   }
 
-  @Delete()///functions/{id}
+  @Delete() ///functions/{id}
   @ApiResponse({
     status: 201,
     description: 'Function deleted successfully.',
   })
-  async deleteFunction(
-    @Body() request: DeleteFunctionRequest,
-  ) {
-    this.logger.log(`Deleting function with ID: ${request.functionId} for user: ${request.userId}`);
+  async deleteFunction(@Body() request: DeleteFunctionRequest) {
+    this.logger.log(
+      `Deleting function with ID: ${request.functionId} for user: ${request.userId}`,
+    );
 
-    const command = new DeleteFunctionCommand(request.functionId, request.userId);
+    const command = new DeleteFunctionCommand(
+      request.functionId,
+      request.userId,
+    );
     await this.deleteFunctionService.execute(command);
 
     return {
@@ -60,7 +62,10 @@ export class FunctionController {
 
   @Post('/execute')
   async executeFunction(@Body() request: ExecuteFunctionRequest) {
-    let command: ExecuteFunctionCommand = new ExecuteFunctionCommand(request.functionId, request.userId);
+    let command: ExecuteFunctionCommand = new ExecuteFunctionCommand(
+      request.functionId,
+      request.userId,
+    );
     let result = await this.executeFunctionService.execute(command);
     return result.result;
   }

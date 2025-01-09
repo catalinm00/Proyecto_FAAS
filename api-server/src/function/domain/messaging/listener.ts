@@ -1,3 +1,3 @@
 export interface Listener {
-  listen(event: Event): void
+  listen(event: Event): void;
 }
