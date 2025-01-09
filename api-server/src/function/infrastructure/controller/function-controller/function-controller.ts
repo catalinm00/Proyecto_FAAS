@@ -1,14 +1,20 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Post , Delete} from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
 import { CreateFunctionRequest } from '../request/create-function-request';
 import { CreateFunctionCommand } from 'src/function/application/command/create-function-command';
+import { DeleteFunctionCommand } from 'src/function/application/command/delete-function-command';
+import { DeleteFunctionRequest} from '../request/delete-function-request';
+import { DeleteFunctionUseCase } from 'src/function/application/use-case/delete-function-use-case'; 
 
 @Controller('api/v1/functions')
 export class FunctionController {
   private readonly logger = new Logger('FunctionController');
 
-  constructor(private readonly createFunctionService: CreateFunctionUseCase) {}
+  constructor(
+    private readonly createFunctionService: CreateFunctionUseCase,
+    private readonly deleteFunctionService: DeleteFunctionUseCase,
+  ) {}
 
   @Post()
   @ApiResponse({
@@ -26,6 +32,24 @@ export class FunctionController {
 
     return {
       message: 'Function created successfully.',
+    };
+  }
+
+  @Delete()///functions/{id}
+  @ApiResponse({
+    status: 201,
+    description: 'Function deleted successfully.',
+  })
+  async deleteFunction(
+    @Body() request: DeleteFunctionRequest,
+  ) {
+    this.logger.log(`Deleting function with ID: ${request.functionId} for user: ${request.userId}`);
+
+    const command = new DeleteFunctionCommand(request.functionId, request.userId);
+    await this.deleteFunctionService.execute(command);
+
+    return {
+      message: 'Function deleted successfully.',
     };
   }
 }
