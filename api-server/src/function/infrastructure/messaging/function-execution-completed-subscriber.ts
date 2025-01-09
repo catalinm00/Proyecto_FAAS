@@ -1,32 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Subscriber } from '../../domain/messaging/subscriber';
 import { FunctionExecutionCompletedEvent } from '../../domain/messaging/event/function-execution-completed-event';
 import { Observable, Subject } from 'rxjs';
 import { connect, JSONCodec, NatsConnection } from 'nats';
-import process from 'node:process';
+import { ConfigService } from '@nestjs/config';
+import * as console from 'node:console';
+import { NatsMsg } from '@nestjs/microservices/external/nats-client.interface';
 
 @Injectable()
-export class FunctionExecutionCompletedSubscriber implements Subscriber<FunctionExecutionCompletedEvent>{
-  private readonly nc: NatsConnection = null;
-  private readonly topicPrefix = process.env.FUNCTION_EXECUTION_TOPIC_PREFIX;
-  private readonly codec = JSONCodec<FunctionExecutionCompletedEvent>();
+export class FunctionExecutionCompletedSubscriber implements Subscriber<FunctionExecutionCompletedEvent>, OnModuleInit {
+  private readonly logger: Logger = new Logger('FunctionExecutionCompletedSubscriber');
+  private nc: NatsConnection = null;
+  private readonly topicPrefix: string;
+  private readonly server: string;
+  private readonly codec = JSONCodec<NatsMsg>();
 
-  constructor() {}
+
+  constructor(configService: ConfigService) {
+    this.topicPrefix = configService.get('FUNCTION_EXECUTION_TOPIC_PREFIX');
+    this.server = configService.get('NATS_SERVER');
+  }
+
+  async onModuleInit(): Promise<any> {
+    this.nc = await connect({servers: [this.server]});
+  }
 
   subscribe(topic: string): Observable<FunctionExecutionCompletedEvent> {
-    if(this.nc == null) {
-      connect({servers: [process.env.NATS_SERVER]}).then(
-        () => console.log("NATS connected")
-      );
-    }
     let observable = new Subject<FunctionExecutionCompletedEvent>();
     let subscription = this.nc.subscribe(this.topicPrefix + topic);
     (async () => { for await (const msg of subscription) {
-      const decodedMessage = this.codec.decode(msg.data);
-      observable.next(decodedMessage);
+      const decodedMessage = JSON.parse(msg.data.toString())["data"];
+      observable.next(decodedMessage as FunctionExecutionCompletedEvent);
       subscription.unsubscribe();
     }})();
     return observable;
   }
-
 }

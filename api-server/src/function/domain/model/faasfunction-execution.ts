@@ -1,15 +1,14 @@
 import { FaasFunction } from './faasfunction';
-import { v4 as uuid } from 'uuid';
 
 export class FaasFunctionExecution {
   constructor(private readonly _functionId: string,
               private _finished: boolean = false,
-              private readonly _id: string = uuid()) {
+              private readonly _id?: string) {
   }
 
 
   static of(func: FaasFunction): FaasFunctionExecution {
-    return new FaasFunctionExecution(func.id, false, null);
+    return new FaasFunctionExecution(func.id, false);
   }
 
   finish(): void {

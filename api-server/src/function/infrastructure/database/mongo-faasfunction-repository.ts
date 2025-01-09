@@ -12,14 +12,25 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   }
 
   async save(func: FaasFunction): Promise<FaasFunction> {
-    const savedFunction = await this.prisma.faasFunction.create({
-      data: {
-        id: func.id,
-        userId: func.userId,
-        image: func.image,
-        active: func.active,
-      },
-    });
+    let savedFunction;
+    if (func.id === undefined) {
+      savedFunction = await this.prisma.faasFunction.create({
+        data: {
+          userId: func.userId,
+          image: func.image,
+          active: func.active,
+        },
+      });
+    } else {
+      savedFunction = await this.prisma.faasFunction.update({
+        where: { id: func.id },
+        data: {
+          userId: func.userId,
+          image: func.image,
+          active: func.active,
+        },
+      });
+    }
     return new FaasFunction(
       savedFunction.image,
       savedFunction.userId,
@@ -35,8 +46,8 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
     });
     return functions.length > 0
       ? functions.map(
-          (func) => new FaasFunction(func.image, func.userId, func.id),
-        )
+        (func) => new FaasFunction(func.image, func.userId, func.id),
+      )
       : null;
   }
 

@@ -20,9 +20,9 @@ export class FaasFunctionAssignerService {
               private  readonly executionRepository: MongoFaasFunctionExecutionRepository,) {}
 
   async assign(func: FaasFunction): Promise<FaasFunctionExecution> {
-    let execution = FaasFunctionExecution.of(func);
-    await this.executionRepository.save(execution);
-    await this.functionExecutionPublisher.publish(FunctionExecutionRequestedEvent.of(execution));
+
+    let execution = await this.executionRepository.save(FaasFunctionExecution.of(func));
+    await this.functionExecutionPublisher.publish(FunctionExecutionRequestedEvent.of(execution, func));
     return execution;
   }
 

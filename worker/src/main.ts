@@ -11,11 +11,11 @@ async function bootstrap() {
     transport: Transport.NATS,
     options: {
       servers: [configService.get('NATS_SERVER', 'nats://localhost:4222')],
-      queue: configService.get('NATS_QUEUE', 'function'),
+      queue: configService.get('NATS_QUEUE', 'functions'),
     },
   });
 
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

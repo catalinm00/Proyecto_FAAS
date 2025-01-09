@@ -2,16 +2,23 @@ services:
   nats:
     image: nats:latest
     ports:
-      - "4222:4222"
-      - "6222:6222"
-      - "8222:8222"
+      - "4222:4222" # Puerto cliente
+      - "8222:8222" # Puerto de monitoreo
+    environment:
+      - NATS_JS_STORAGE_DIR=/data/nats-js
+    volumes:
+      - ./nats-data:/data/nats-js # Volumen persistente para JetStream
+    command: >
+      -js --store_dir /data/nats-js
   worker:
     build: ./worker/
     ports:
-      - "3000:3000"
+      - "3001:3001"
       - "9229:9229"
     environment:
       NODE_ENV: pro
+      DOCKER_HOST: tcp://host.docker.internal:2375
+
     volumes:
       - //var/run/docker.sock:/var/run/docker.sock
     depends_on:

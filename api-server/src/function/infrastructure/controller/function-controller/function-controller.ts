@@ -61,6 +61,7 @@ export class FunctionController {
   @Post('/execute')
   async executeFunction(@Body() request: ExecuteFunctionRequest) {
     let command: ExecuteFunctionCommand = new ExecuteFunctionCommand(request.functionId, request.userId);
-    return await this.executeFunctionService.execute(command);
+    let result = await this.executeFunctionService.execute(command);
+    return result.result;
   }
 }
