@@ -1,13 +1,14 @@
-FROM node:slim
+FROM node:iron-slim
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
-RUN npm run build
+RUN apt-get update -y && apt-get install -y openssl  \
+    && npm run prisma:generate && npm run build
 
 
-CMD [ "npm", "run", "start:compose" ]
+CMD [ "npm", "run", "start:prod" ]

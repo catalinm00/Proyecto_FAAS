@@ -1,0 +1,7 @@
+DATABASE_URL=mongodb://mongo:27017/api-server
+SALTING_WORD=d3si3rt0
+APISIX_ADMIN_KEY=kQxzARurYKFODMtzinIsLQeyWNaFolle
+APISIX_URL=http://apisix:9180/apisix/admin
+FUNCTION_EXECUTION_TOPIC_PREFIX=execution/
+FUNCTION_DISPATCHING_QUEUE=functions
+NATS_SERVER='nats://nats:4222'
