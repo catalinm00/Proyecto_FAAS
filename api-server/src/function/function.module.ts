@@ -10,8 +10,6 @@ import { MongoFaasFunctionExecutionRepository } from './infrastructure/database/
 import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/function-execution-requested-publisher';
 import { UserModule } from '../user/user.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
-import process from 'node:process';
 
 @Module({
   imports: [
@@ -21,7 +19,7 @@ import process from 'node:process';
         name: 'NATS_CLIENT',
         transport: Transport.NATS,
         options: {
-          servers: [process?.env?.NATS_SERVER || 'nats://localhost:4222'],
+          servers: [process.env.NATS_SERVER],
         },
       },
     ]),

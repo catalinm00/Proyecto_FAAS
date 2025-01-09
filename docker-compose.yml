@@ -9,7 +9,7 @@ services:
     volumes:
       - ./nats-data:/data/nats-js # Volumen persistente para JetStream
     command: >
-      -js --store_dir /data/nats-js
+      -js --store_dir /data/nats-js -m 8222
   worker:
     build: ./worker/
     ports:
@@ -18,7 +18,7 @@ services:
     env_file:
       - ./worker/.env.pro
     volumes:
-      - //var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - nats
   mongo:
@@ -34,6 +34,7 @@ services:
     depends_on:
       - apisix
       - mongo
+      - nats
   apisix:
     image: "apache/apisix"
     restart: always
