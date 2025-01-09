@@ -1,51 +1,32 @@
-version: "3.9"
-
-networks:
-  apisix-network:
-    driver: bridge
+version: '3.9'
 
 services:
   etcd:
     image: bitnami/etcd:latest
     container_name: etcd
-    environment:
-      - ALLOW_NONE_AUTHENTICATION=yes
-      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
-      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-    healthcheck:
-      test: ["CMD", "etcdctl", "endpoint", "health", "--endpoints=http://127.0.0.1:2379"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
-    networks:
-      - apisix-network
     ports:
       - "2379:2379"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+    networks:
+      - apisix-network
 
   apisix:
     image: apache/apisix:latest
     container_name: apisix
     depends_on:
-      etcd:
-        condition: service_healthy
-    networks:
-      - apisix-network
-    volumes:
-      - ./config.yaml:/usr/local/apisix/conf/config.yaml
+      - etcd
     ports:
       - "9080:9080"
       - "9443:9443"
-
-  dashboard:
-    image: apache/apisix-dashboard:latest
-    container_name: apisix-dashboard
-    environment:
-      - APISIX_BASE_URL=http://apisix:9080/apisix/admin
-      - APIX_ADMIN_KEY=dhOXJMgujARZCAPHqxiKwxntXVkhgvik
-    depends_on:
-      etcd:
-        condition: service_healthy
+    volumes:
+      - ./apisix_conf:/usr/local/apisix/conf
+      - ./apisix_logs:/usr/local/apisix/logs
     networks:
       - apisix-network
-    ports:
-      - "9000:9000"
+
+networks:
+  apisix-network:
+    driver: bridge

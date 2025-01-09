@@ -1,0 +1,17 @@
+montar etcd:
+docker run -d --name etcd \
+  --network apisix-network \
+  -p 2379:2379 \
+  -p 2380:2380 \
+  -e ALLOW_NONE_AUTHENTICATION=yes \
+  -e ETCD_ADVERTISE_CLIENT_URLS=http://127.0.0.1:2379 \
+  bitnami/etcd:latest
+
+luego apisix, este comando se debe ejecutar dentro del directorio donde tenemos config.yaml:
+docker run -d --name apache-apisix \
+  --network apisix-network \
+  -p 9080:9080 \
+  -p 9443:9443 \
+  -v $(pwd)/config.yaml:/usr/local/apisix/conf/config.yaml \
+  apache/apisix
+
