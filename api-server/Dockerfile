@@ -1,4 +1,4 @@
-FROM node:iron-slim
+FROM node:alpine
 WORKDIR /app
 
 COPY package*.json ./
@@ -7,7 +7,7 @@ RUN npm ci
 
 COPY . .
 
-RUN apt-get update -y && apt-get install -y openssl  \
+RUN apk update && apk add openssl  \
     && npm run prisma:generate && npm run build
 
 
