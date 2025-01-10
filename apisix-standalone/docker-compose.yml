@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: etcd
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+    ports:
+      - "2379:2379"
+
+  apisix:
+    image: apache/apisix:latest
+    container_name: apisix
+    depends_on:
+      - etcd
+    volumes:
+      - ./config.yaml:/usr/local/apisix/conf/config.yaml
+      - ./apisix.yaml:/usr/local/apisix/conf/apisix.yaml
+    ports:
+      - "9080:9080"  # API Gateway
+      - "9180:9180"  # Admin API
+
+

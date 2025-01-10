@@ -36,10 +36,10 @@ export class UserController {
 
     // Registrar al consumidor en APISIX con el email como secret
     // AÑADIR EL ID??
-    await this.apisixService.registerConsumer(
+    /*await this.apisixService.registerConsumer(
       request.email, // username en APISIX
     );
-    await this.apisixService.createGlobalProtectedRoute();
+    await this.apisixService.createGlobalProtectedRoute();*/
 
     return {
       message: 'User created successfully.',

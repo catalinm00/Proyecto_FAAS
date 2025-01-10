@@ -15,6 +15,14 @@ docker run -d --name apache-apisix \
   -v $(pwd)/config.yaml:/usr/local/apisix/conf/config.yaml \
   apache/apisix
 
+docker run -d --name apache-apisix \
+  --network apisix-network \
+  -p 9080:9080 \
+  -p 9180:9180 \
+  -v $(pwd)/config.yaml:/usr/local/apisix/conf/config.yaml \
+  -v $(pwd)/apisix.yaml:/usr/local/apisix/conf/apisix.yaml \
+  apache/apisix
+
   Peticiones:
   curl -X POST http://127.0.0.1:9080/api/v1/functions \
     -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXZpbjJAZXhhbXBsZS5jb20iLCJpYXQiOjE3MzY1MjI2NjIsImV4cCI6MTczNjYwOTA2Mn0.o0YrGgbuKmOnhUqhMrOJmqPBT1cHfDHPuLOVb-tiCUE" \

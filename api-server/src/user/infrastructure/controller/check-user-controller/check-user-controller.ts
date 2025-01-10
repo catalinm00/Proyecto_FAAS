@@ -39,8 +39,10 @@ export class loginController {
     //Generar token usando email como secret
     //ESTO DEBE DE IR EN EL HACER LOGIN
     const token = await this.authService.generateToken({
-      username: request.email,
-      email: request.email,
+      /*username: request.email,
+      email: request.email,*/
+      username: 'apiserver-key',
+      email: 'my-apiserver-secret-key',
     });
 
     return {
