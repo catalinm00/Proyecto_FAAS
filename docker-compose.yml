@@ -2,17 +2,65 @@ services:
   nats:
     image: nats:latest
     ports:
-      - "4222:4222"
-      - "6222:6222"
-      - "8222:8222"
+      - "4222:4222" # Puerto cliente
+      - "8222:8222" # Puerto de monitoreo
+    environment:
+      - NATS_JS_STORAGE_DIR=/data/nats-js
+    volumes:
+      - ./nats-data:/data/nats-js # Volumen persistente para JetStream
+    command: >
+      -js --store_dir /data/nats-js -m 8222
   worker:
     build: ./worker/
     ports:
-      - "3000:3000"
+      - "3001:3001"
       - "9229:9229"
-    environment:
-      NODE_ENV: pro
+    env_file:
+      - ./worker/.env.pro
     volumes:
-      - //var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - nats
+  mongo:
+    image: mongodb/mongodb-atlas-local
+    ports:
+      - "27017:27017"
+  api-server:
+    build: ./api-server/
+    env_file:
+      - ./api-server/.env.pro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - apisix
+      - mongo
+      - nats
+  apisix:
+    image: "apache/apisix"
+    restart: always
+    volumes:
+      - ./apisix_conf/master/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+    depends_on:
+      - etcd
+    environment:
+      ADMIN_KEY: kQxzARurYKFODMtzinIsLQeyWNaFolle
+    ports:
+      - "9180:9180/tcp"
+      - "9080:9080/tcp"
+      - "9091:9091/tcp"
+      - "9443:9443/tcp"
+
+  etcd:
+    image: bitnami/etcd:3.4.9
+    user: root
+    restart: always
+    volumes:
+      - ../example/etcd_data:/etcd_data
+    environment:
+      ETCD_DATA_DIR: /etcd_data
+      ETCD_ENABLE_V2: "true"
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+    ports:
+      - "2379:2379/tcp"

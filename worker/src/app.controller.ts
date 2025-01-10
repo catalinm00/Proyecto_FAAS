@@ -1,6 +1,6 @@
 import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { NatsService } from './service/NatsService';
-import { FFunction } from './model/FFunction';
+import { FaasFunction } from './model/faas-function';
 
 @Controller()
 export class AppController {
@@ -14,6 +14,6 @@ export class AppController {
   @Post('send')
   async send(@Body('image') image: string, @Body('queue') queue: string) {
     this.logger.log(`image: ${JSON.stringify(image)}, queue: ${queue}`);
-    return await this.nats.sendMessage(queue, new FFunction(image));
+    return await this.nats.sendMessage(queue, new FaasFunction(image));
   }
 }
