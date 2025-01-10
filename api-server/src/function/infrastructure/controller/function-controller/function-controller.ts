@@ -9,8 +9,11 @@ import { DeleteFunctionUseCase } from 'src/function/application/use-case/delete-
 import { ExecuteFunctionRequest } from '../request/execute-function-request';
 import { ExecuteFunctionUseCase } from '../../../application/use-case/execute-function-usecase';
 import { ExecuteFunctionCommand } from '../../../application/command/execute-function-command';
+import { ApiBearerAuth } from '@nestjs/swagger';
+
 
 @Controller('api/v1/functions')
+@ApiBearerAuth() // Añade esto para rutas protegidas
 export class FunctionController {
   private readonly logger = new Logger('FunctionController');
 

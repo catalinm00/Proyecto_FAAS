@@ -1,0 +1,5 @@
+2. Usa host.docker.internal (solo para macOS y Windows)
+En macOS o Windows, Docker expone automáticamente el host principal (tu máquina) dentro de los contenedores como host.docker.internal. Esto significa que puedes configurar el upstream en APISIX para usar host.docker.internal en lugar de 127.0.0.1:
+
+1. Cambiar 127.0.0.1 por la IP de tu máquina
+Cuando APISIX está en un contenedor, 127.0.0.1 se refiere al contenedor mismo, no a tu máquina. Por lo tanto, necesitas usar la dirección IP de tu máquina (host) para que APISIX pueda conectarse al backend.

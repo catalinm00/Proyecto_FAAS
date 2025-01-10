@@ -11,7 +11,38 @@ luego apisix, este comando se debe ejecutar dentro del directorio donde tenemos 
 docker run -d --name apache-apisix \
   --network apisix-network \
   -p 9080:9080 \
-  -p 9443:9443 \
+  -p 9180:9180 \
   -v $(pwd)/config.yaml:/usr/local/apisix/conf/config.yaml \
   apache/apisix
+
+  Peticiones:
+  curl -X POST http://127.0.0.1:9080/api/v1/functions \
+    -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXZpbjJAZXhhbXBsZS5jb20iLCJpYXQiOjE3MzY1MjI2NjIsImV4cCI6MTczNjYwOTA2Mn0.o0YrGgbuKmOnhUqhMrOJmqPBT1cHfDHPuLOVb-tiCUE" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "image": "xyz",
+      "userId": "677c1f116878ad6f5bb3455f"
+    }'
+
+curl -X DELETE http://127.0.0.1:9080/api/v1/functions \
+  -H "Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJrZXZpbjJAZXhhbXBsZS5jb20iLCJpYXQiOjE3MzY1MjI2NjIsImV4cCI6MTczNjYwOTA2Mn0.o0YrGgbuKmOnhUqhMrOJmqPBT1cHfDHPuLOVb-tiCUE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "functionId": "67813c2423bfed6552712ae2",
+    "userId": "677c1f116878ad6f5bb3455f"
+  }'
+
+ curl -X POST http://127.0.0.1:9080/api/v1/users \
+   -H "Content-Type: application/json" \
+   -d '{
+     "email": "kevin3@example.com",
+     "password": "password123"
+   }'
+curl -X POST http://127.0.0.1:9080/api/v1/users/login \
+   -H "Content-Type: application/json" \
+   -d '{
+     "email": "kevin3@example.com",
+     "password": "password123"
+   }'
+
 
