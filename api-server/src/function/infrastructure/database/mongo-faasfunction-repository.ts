@@ -12,14 +12,25 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   }
 
   async save(func: FaasFunction): Promise<FaasFunction> {
-    const savedFunction = await this.prisma.fasFunction.create({
-      data: {
-        id: func.id,
-        userId: func.userId,
-        image: func.image,
-        active: func.active,
-      },
-    });
+    let savedFunction;
+    if (func.id === undefined) {
+      savedFunction = await this.prisma.faasFunction.create({
+        data: {
+          userId: func.userId,
+          image: func.image,
+          active: func.active,
+        },
+      });
+    } else {
+      savedFunction = await this.prisma.faasFunction.update({
+        where: { id: func.id },
+        data: {
+          userId: func.userId,
+          image: func.image,
+          active: func.active,
+        },
+      });
+    }
     return new FaasFunction(
       savedFunction.image,
       savedFunction.userId,
@@ -28,7 +39,7 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   }
 
   async findByUserId(userId: string): Promise<FaasFunction[] | null> {
-    const functions = await this.prisma.fasFunction.findMany({
+    const functions = await this.prisma.faasFunction.findMany({
       where: {
         userId: userId,
       },
@@ -41,7 +52,7 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   }
 
   async findById(id: string): Promise<FaasFunction | null> {
-    const func = await this.prisma.fasFunction.findFirst({
+    const func = await this.prisma.faasFunction.findFirst({
       where: {
         id: id,
       },
@@ -53,7 +64,7 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
     userId: string,
     image: string,
   ): Promise<FaasFunction | null> {
-    const func = await this.prisma.fasFunction.findFirst({
+    const func = await this.prisma.faasFunction.findFirst({
       where: {
         userId: userId,
         image: image,
@@ -63,7 +74,7 @@ export class MongoFaasFunctionRepository implements FaasFunctionRepository {
   }
 
   async delete(func: FaasFunction): Promise<FaasFunction> {
-    await this.prisma.fasFunction.delete({
+    await this.prisma.faasFunction.delete({
       where: {
         id: func.id,
       },

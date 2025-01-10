@@ -9,7 +9,11 @@ import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: './.env.devel' }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      ignoreEnvFile: false,
+      envFilePath: `.env.${process.env.NODE_ENV || 'devel'}`,
+    }),
     AuthenticationModule,
     UserModule,
     FunctionModule,
@@ -18,5 +22,4 @@ import { SharedModule } from './shared/shared.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}

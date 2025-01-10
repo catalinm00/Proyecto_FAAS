@@ -11,7 +11,6 @@ export class BcryptService implements CryptographyService {
   async encrypt(data: string): Promise<string> {
     let saltingWord = this.configService.get('SALTING_WORD');
     const salt = await bcrypt.genSalt(this.iterations, 'a');
-    return bcrypt.hash(data+saltingWord, salt);
+    return bcrypt.hash(data + saltingWord, salt);
   }
-
 }

@@ -4,8 +4,8 @@ import { AuthService } from './auth.service';
 import { ApisixService } from './apisix.service';
 
 @Module({
-    imports: [JwtModule.register({})],
-    providers: [AuthService,ApisixService],
-    exports: [AuthService],
+  imports: [JwtModule.register({})],
+  providers: [AuthService, ApisixService],
+  exports: [AuthService],
 })
-export class AuthenticationModule{}
+export class AuthenticationModule {}

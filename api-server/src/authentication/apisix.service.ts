@@ -4,12 +4,12 @@ import axios from 'axios';
 
 @Injectable()
 export class ApisixService {
-  private readonly apisixAdminUrl:string;
-  private readonly apisixAdminKey:string; // Reemplaza con tu clave administrativa de APISIX
+  private readonly apisixAdminUrl: string;
+  private readonly apisixAdminKey: string; // Reemplaza con tu clave administrativa de APISIX
 
-  constructor(private configService:ConfigService){
-    this.apisixAdminUrl = configService.get("APISIX_URL"),
-    this.apisixAdminKey = configService.get("APISIX_ADMIN_KEY")
+  constructor(private configService: ConfigService) {
+    (this.apisixAdminUrl = configService.get('APISIX_URL')),
+      (this.apisixAdminKey = configService.get('APISIX_ADMIN_KEY'));
   }
   /**
    * Registrar un consumidor en APISIX
@@ -21,14 +21,14 @@ export class ApisixService {
       username: sanitizedUsername, // Identificador único del consumidor
       plugins: {
         'jwt-auth': {
-          key: email,     // Clave del consumidor (el email)
-          secret: email,  // Secreto del consumidor (el email)
+          key: email, // Clave del consumidor (el email)
+          secret: email, // Secreto del consumidor (el email)
         },
       },
     };
 
     try {
-      console.log("Url Admin:"+this.apisixAdminUrl);
+      console.log('Url Admin:' + this.apisixAdminUrl);
       await axios.put(
         `${this.apisixAdminUrl}/consumers/`, // Registra al consumidor con su email
         consumerConfig,
@@ -40,7 +40,10 @@ export class ApisixService {
       );
       console.log(`Consumer ${email} registered successfully in APISIX`);
     } catch (error) {
-      console.error('Error registering consumer in APISIX:', error.response?.data || error.message);
+      console.error(
+        'Error registering consumer in APISIX:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to register consumer in APISIX',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -78,7 +81,10 @@ export class ApisixService {
       );
       console.log('Global protected route created successfully in APISIX');
     } catch (error) {
-      console.error('Error creating global protected route in APISIX:', error.response?.data || error.message);
+      console.error(
+        'Error creating global protected route in APISIX:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to create global protected route in APISIX',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -31,6 +31,18 @@ export class MongoUserRepository implements UserRepository {
     return new User(result.email, result.password, result.id);
   }
 
+  async findById(id: string): Promise<User | null> {
+    const result = await this.prisma.user.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    if (!result) {
+      return null;
+    }
+    return new User(result.email, result.password, result.id);
+  }
+
   async save(user: User): Promise<User> {
     const result = await this.prisma.user.create({
       data: {
