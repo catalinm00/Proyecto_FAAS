@@ -1,0 +1,5 @@
+export class MessagingConfig {
+  static readonly NATS_SERVER = 'NATS_SERVER';
+  static readonly FUNCTION_EXECUTION_TOPIC_PREFIX = 'FUNCTION_EXECUTION_TOPIC_PREFIX';
+  static readonly FUNCTION_DISPATCHING_QUEUE = "FUNCTION_DISPATCHING_QUEUE";
+}

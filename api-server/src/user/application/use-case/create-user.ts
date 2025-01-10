@@ -12,10 +12,10 @@ export class CreateUser {
   private readonly userRepository: UserRepository;
   private readonly cryptographyService: CryptographyService;
 
-
   constructor(
     cryptographyService: BcryptService,
-    userRepository: MongoUserRepository) {
+    userRepository: MongoUserRepository,
+  ) {
     this.cryptographyService = cryptographyService;
     this.userRepository = userRepository;
   }
@@ -25,7 +25,9 @@ export class CreateUser {
     if (user) {
       throw Error('User already exists');
     }
-    let encryptedPassword = await this.cryptographyService.encrypt(command.password);
+    const encryptedPassword = await this.cryptographyService.encrypt(
+      command.password,
+    );
     await this.userRepository.save(new User(command.email, encryptedPassword));
 
     return {};

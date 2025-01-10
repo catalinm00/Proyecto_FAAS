@@ -1,59 +1,68 @@
 import { Docker } from 'node-docker-api';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { FFunction } from '../model/FFunction';
+import { FaasFunction } from '../model/faas-function';
 import { Stream } from 'stream';
+import { Container } from 'node-docker-api/lib/container';
 
 @Injectable()
 export class ExecuteFunctionService {
   private readonly logger: Logger = new Logger(ExecuteFunctionService.name);
 
-  constructor(@Inject('DOCKER_CLIENT') private readonly containerRuntime: Docker) {
+  constructor(
+    @Inject('DOCKER_CLIENT') private readonly containerRuntime: Docker,
+  ) {
   }
 
+  private readonly logOpts = {
+    follow: false,
+    stdout: true,
+    stderr: true,
+    timestamps: false,
+  };
 
-  async execute(func: FFunction) {
-    this.pullImageIfNecessary(func.getImage());
-    let container = await this.containerRuntime.container.create({
-      Image: func.getImage(),
-      AttachStdout: true,
-      AttachStdErr: true,
-    })
-
-    await container.start();
+  async execute(func: FaasFunction) {
+    this.logger.log(`Execute function ${func}`);
     let logs: string = '';
-    const logStream: Stream = await container.logs({
-      follow: false,
-      stdout: true,
-      stderr: true,
-      timestamps: true,
-    }) as Stream;
-    logStream.on('data', (d) => logs += d.toString());
+    try {
+      this.pullImageIfNecessary(func.image);
+      let container: Container = await this.containerRuntime.container.create({
+        Image: func.image,
+        AttachStdout: true,
+        AttachStdErr: true,
+      });
+      await container.start();
+      const logStream: Stream = (await container.logs(this.logOpts)) as Stream;
+      logStream.on('data', (d) => (logs += d.toString()));
 
-    await new Promise((resolve, reject) => {
-      logStream.on('end', resolve);
-      logStream.on('error', reject);
-    });
-    this.logger.log('Container logs: ' + logs);
-    //TODO: usar un evento de dominio de función ejecutada para parar y eliminar el contenedor
-    // con tal de obtener un mejor tiempo de respuesta
-    await container.stop();
-    await container.delete();
-    return logs;
+      await new Promise((resolve, reject) => {
+        logStream.on('end', resolve);
+        logStream.on('error', reject);
+      });
+      //TODO: usar un evento de dominio de función ejecutada para parar y eliminar el contenedor
+      // con tal de obtener un mejor tiempo de respuesta
+      this.cleanContainer(container);
+    } catch (e) {
+      logs = e.toString();
+    } finally {
+      this.logger.log(`Function result: ${logs}`);
+      return logs;
+    }
   }
 
   private pullImageIfNecessary(image: string) {
-    let imageNameParts = image.split(':');
-    let tag = imageNameParts.length > 1 ? imageNameParts[1] : 'latest';
-    this.containerRuntime.image.list({})
-      .then(images => images
-        .find(image => image.data['RepoTags']
-          .find(tag => tag.includes(image)),
+    this.containerRuntime.image
+      .list({})
+      .then((images) =>
+        images.find((image) =>
+          image.data['RepoTags'].find((tag) => tag.includes(image)),
         ),
       )
-      .then(() => this.logger.log('Image already exist, pull is not needed'))
+      .then((ls) =>
+        this.logger.log('Image already exist, pull is not needed'))
       .catch(() =>
-        this.containerRuntime.image.create({}, { fromImage: image, tag: tag })
-          .then(stream => this.promisifyStream(stream as Stream)),
+        this.containerRuntime.image
+          .create({}, { fromImage: image})
+          .then((stream) => this.promisifyStream(stream as Stream)),
       );
   }
 
@@ -65,4 +74,9 @@ export class ExecuteFunctionService {
     });
   }
 
+  private async cleanContainer(container: Container) {
+    await container.stop();
+    await container.delete();
+    this.logger.log(`Container ${container.id} removed`)
+  }
 }
