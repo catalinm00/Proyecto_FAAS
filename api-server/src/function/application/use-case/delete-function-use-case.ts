@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { FaasFunctionRepository } from 'src/function/domain/repository/faasfunction-repository';
 import { DeleteFunctionCommand } from '../command/delete-function-command';
 import { DeleteFunctionResponse } from '../response/delete-function-response';
 import { MongoFaasFunctionRepository } from 'src/function/infrastructure/database/mongo-faasfunction-repository';
 
 @Injectable()
 export class DeleteFunctionUseCase {
-  constructor(private readonly functionRepository: MongoFaasFunctionRepository) {}
+  constructor(
+    private readonly functionRepository: MongoFaasFunctionRepository,
+  ) {}
 
-  async execute(command: DeleteFunctionCommand): Promise<DeleteFunctionResponse> {
+  async execute(
+    command: DeleteFunctionCommand,
+  ): Promise<DeleteFunctionResponse> {
     const func = await this.functionRepository.findById(command.functionId);
     if (!func) {
       throw new Error('Function not found');
