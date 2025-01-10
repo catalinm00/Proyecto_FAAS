@@ -1,0 +1,8 @@
+routes:
+  -
+    uri: /api
+    upstream:
+      nodes:
+        "api-server:3000": 1
+      type: roundrobin
+#END
