@@ -8,6 +8,12 @@ global_rules:
         expose_headers: "*"
         allow_credentials: true
         max_age: 3600
+consumers:
+  - username: jwt
+    plugins:
+      jwt-auth:
+        key: apiserver-key
+        secret: my-apiserver-secret-key
 routes:
   -
     uri: /api-docs
@@ -34,14 +40,23 @@ routes:
       jwt-auth: {}
 
   -
-    uri: /api/v1/users/
+    uri: /api/v1/users/info/*
     upstream:
       type: roundrobin
       nodes:
         "api-server:3000": 1
-    methods: ["GET", "DELETE"]
+    methods: ["GET"]
     plugins:
       jwt-auth: {}
+
+  - uri: /api/v1/users/delete/*
+    upstream:
+      type: roundrobin
+      nodes:
+        "api-server:3000": 1
+    methods: ["DELETE" ]
+    plugins:
+      jwt-auth: { }
 
   -
     uri: /api/v1/users

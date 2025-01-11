@@ -6,7 +6,7 @@ export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   async generateToken(user: any): Promise<string> {
-    const payload = { username: user.username };
+    const payload = { key: user.username };
 
     return this.jwtService.sign(payload, {
       secret: user.email,
