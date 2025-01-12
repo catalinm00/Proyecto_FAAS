@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../domain/repository/user-repository';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
-import { CreateUserCommand } from '../command/create-user-command';
+import { CheckUserCommand } from '../command/check-user-command';
 import { User } from '../../domain/model/user';
 import { VoidResponse } from '../response/void-response';
 import { CryptographyService } from '../service/cryptography-service';
@@ -19,7 +19,7 @@ export class CheckUser {
     this.userRepository = userRepository;
   }
 
-  async execute(command: CreateUserCommand): Promise<VoidResponse> {
+  async execute(command: CheckUserCommand): Promise<VoidResponse> {
     const user: User = await this.userRepository.findByEmail(command.email);
 
     if (!user) {

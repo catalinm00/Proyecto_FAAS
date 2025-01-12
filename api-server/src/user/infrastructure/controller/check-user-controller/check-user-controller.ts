@@ -2,8 +2,9 @@ import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { AuthService } from 'src/authentication/auth.service';
 import { CreateUserRequest } from '../request/create-user-request';
 import { CheckUser } from 'src/user/application/use-case/check-user';
-import { CreateUserCommand } from '../../../application/command/create-user-command';
+import { CheckUserCommand } from '../../../application/command/check-user-command';
 import { ApiResponse } from '@nestjs/swagger';
+import { User } from '../../../domain/model/user';
 
 @Controller('api/v1/users/login')
 export class loginController {
@@ -27,7 +28,7 @@ export class loginController {
     this.logger.log('Received request: ' + request.email);
 
     //Verificar si está registrado
-    const command: CreateUserCommand = {
+    const command: CheckUserCommand = {
       email: request.email,
       password: request.password,
     };
@@ -35,12 +36,9 @@ export class loginController {
 
     //Generar token usando email como secret
     //ESTO DEBE DE IR EN EL HACER LOGIN
-    const token = await this.authService.generateToken({
-      /*username: request.email,
-            email: request.email,*/
-      key: request.email,
-      secret: request.password,
-    });
+    const token = await this.authService.generateToken(
+      new User(command.email, command.password),
+    );
 
     return {
       message: 'User logged successfully.',

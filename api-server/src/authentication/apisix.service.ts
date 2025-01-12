@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { User } from '../user/domain/model/user';
 
 @Injectable()
 export class ApisixService {
@@ -15,14 +16,13 @@ export class ApisixService {
    * Registrar un consumidor en APISIX
    * @param email Email del usuario (usado como key y secret)
    */
-  async registerConsumer(email: string, password: string): Promise<void> {
-    const sanitizedUsername = email.split('@')[0];
+  async registerConsumer(user: User): Promise<void> {
     const consumerConfig = {
-      username: sanitizedUsername, // Identificador único del consumidor
+      username: user.id, // Identificador único del consumidor
       plugins: {
         'jwt-auth': {
-          key: email, // Clave del consumidor (el email)
-          secret: password, // Secreto del consumidor (el email)
+          key: user.email, // Clave del consumidor (el email)
+          secret: process.env.JWT_SECRET, // Secreto del consumidor (el email)
         },
       },
     };
@@ -38,7 +38,7 @@ export class ApisixService {
           },
         },
       );
-      console.log(`Consumer ${email} registered successfully in APISIX`);
+      console.log(`Consumer ${user.email} registered successfully in APISIX`);
     } catch (error) {
       console.error(
         'Error registering consumer in APISIX:',

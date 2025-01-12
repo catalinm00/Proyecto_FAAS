@@ -29,6 +29,36 @@ curl -X PUT "$ADMIN_API/global_rules/1" \
 # 2. Configurar rutas
 echo "Setting up routes..."
 
+# Ruta para /api/v1/users
+curl -X PUT "$ADMIN_API/routes/6" \
+  -H "X-API-KEY: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uri": "/api/v1/users",
+    "methods": ["POST"],
+    "upstream": {
+      "type": "roundrobin",
+      "nodes": {
+        "'"$UPSTREAM"'": 1
+      }
+    }
+  }'
+
+# Ruta para /api/v1/users/login
+curl -X PUT "$ADMIN_API/routes/7" \
+  -H "X-API-KEY: $API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "uri": "/api/v1/users/login",
+    "methods": ["POST"],
+    "upstream": {
+      "type": "roundrobin",
+      "nodes": {
+        "'"$UPSTREAM"'": 1
+      }
+    }
+  }'
+
 # Ruta para /api-docs
 curl -X PUT "$ADMIN_API/routes/1" \
   -H "X-API-KEY: $API_KEY" \
@@ -57,49 +87,14 @@ curl -X PUT "$ADMIN_API/routes/2" \
     }
   }'
 
-# Ruta para /api/v1/functions
-curl -X PUT "$ADMIN_API/routes/3" \
-  -H "X-API-KEY: $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "uri": "/api/v1/functions",
-    "methods": ["POST", "GET", "DELETE"],
-    "upstream": {
-      "type": "roundrobin",
-      "nodes": {
-        "'"$UPSTREAM"'": 1
-      }
-    },
-    "plugins": {
-      "jwt-auth": {}
-    }
-  }'
-
-# Ruta para /api/v1/users/info/*
-curl -X PUT "$ADMIN_API/routes/4" \
-  -H "X-API-KEY: $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "uri": "/api/v1/users/info/*",
-    "methods": ["GET"],
-    "upstream": {
-      "type": "roundrobin",
-      "nodes": {
-        "'"$UPSTREAM"'": 1
-      }
-    },
-    "plugins": {
-      "jwt-auth": {}
-    }
-  }'
 
 # Ruta para /api/v1/users/delete/*
 curl -X PUT "$ADMIN_API/routes/5" \
   -H "X-API-KEY: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "uri": "/api/v1/users/delete/*",
-    "methods": ["DELETE"],
+    "uri": "/api/*",
+    "methods": ["POST","GET","DELETE","PUT","PATCH"],
     "upstream": {
       "type": "roundrobin",
       "nodes": {
@@ -108,36 +103,6 @@ curl -X PUT "$ADMIN_API/routes/5" \
     },
     "plugins": {
       "jwt-auth": {}
-    }
-  }'
-
-# Ruta para /api/v1/users
-curl -X PUT "$ADMIN_API/routes/6" \
-  -H "X-API-KEY: $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "uri": "/api/v1/users",
-    "methods": ["POST"],
-    "upstream": {
-      "type": "roundrobin",
-      "nodes": {
-        "'"$UPSTREAM"'": 1
-      }
-    }
-  }'
-
-# Ruta para /api/v1/users/login
-curl -X PUT "$ADMIN_API/routes/7" \
-  -H "X-API-KEY: $API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "uri": "/api/v1/users/login",
-    "methods": ["POST"],
-    "upstream": {
-      "type": "roundrobin",
-      "nodes": {
-        "'"$UPSTREAM"'": 1
-      }
     }
   }'
 
