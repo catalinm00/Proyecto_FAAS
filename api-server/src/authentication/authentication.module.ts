@@ -10,7 +10,7 @@ import { JwtService } from './jwt.service';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET, // TODO: Replace with own secret key
+      secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60m' },
     }),
   ],
