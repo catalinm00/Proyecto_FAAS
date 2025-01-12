@@ -11,7 +11,7 @@ import { JwtService } from './jwt.service';
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60m' },
+      signOptions: { expiresIn: '24h' },
     }),
   ],
   providers: [AuthService, ApisixService, JwtStrategy, JwtService],
