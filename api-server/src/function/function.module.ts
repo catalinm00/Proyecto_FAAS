@@ -10,10 +10,12 @@ import { MongoFaasFunctionExecutionRepository } from './infrastructure/database/
 import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/function-execution-requested-publisher';
 import { UserModule } from '../user/user.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthenticationModule } from '../authentication/authentication.module';
 
 @Module({
   imports: [
     UserModule,
+    AuthenticationModule,
     ClientsModule.register([
       {
         name: 'NATS_CLIENT',

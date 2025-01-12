@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
-  private readonly secretKey = 'your_jwt_secret_key'; // TODO: Replace with own secret key
+  private readonly secretKey = process.env.JWT_SECRET; // TODO: Replace with own secret key
 
   verifyToken(token: string): any {
     try {
