@@ -40,7 +40,6 @@ services:
     restart: always
     volumes:
       - ./apisix_conf/master/config.yaml:/usr/local/apisix/conf/config.yaml:ro
-      - ./apisix_conf/master/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
     depends_on:
       - etcd
     environment:
@@ -65,3 +64,12 @@ services:
       ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
     ports:
       - "2379:2379/tcp"
+
+  apisix-init:
+    image: curlimages/curl:latest
+    depends_on:
+      - apisix
+      - etcd
+    volumes:
+      - ./apisix_conf/master/configure_apisix.sh:/scripts/configure_apisix.sh:ro
+    entrypoint: [ "/bin/sh", "-c", "sleep 15 && sh /scripts/configure_apisix.sh" ]

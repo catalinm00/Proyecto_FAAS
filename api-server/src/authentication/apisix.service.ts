@@ -15,14 +15,14 @@ export class ApisixService {
    * Registrar un consumidor en APISIX
    * @param email Email del usuario (usado como key y secret)
    */
-  async registerConsumer(email: string): Promise<void> {
+  async registerConsumer(email: string, password: string): Promise<void> {
     const sanitizedUsername = email.split('@')[0];
     const consumerConfig = {
       username: sanitizedUsername, // Identificador único del consumidor
       plugins: {
         'jwt-auth': {
           key: email, // Clave del consumidor (el email)
-          secret: email, // Secreto del consumidor (el email)
+          secret: password, // Secreto del consumidor (el email)
         },
       },
     };

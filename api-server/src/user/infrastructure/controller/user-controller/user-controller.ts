@@ -6,6 +6,7 @@ import { CreateUserCommand } from '../../../application/command/create-user-comm
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { GetUserByIdCommand } from '../../../application/command/get-user-by-id-command';
 import { GetUserByIdUseCase } from '../../../application/use-case/get-user-by-id-use-case';
+import { ApisixService } from 'src/authentication/apisix.service';
 
 @Controller('api/v1/users')
 export class UserController {
@@ -13,6 +14,7 @@ export class UserController {
   constructor(
     private readonly createUserService: CreateUser,
     private readonly getUserByIdService: GetUserByIdUseCase,
+    private readonly apisixService: ApisixService, // Inyectar ApisixService
   ) {}
 
   @Post()
@@ -28,6 +30,11 @@ export class UserController {
       password: request.password,
     };
     await this.createUserService.execute(command);
+    // Registrar al consumidor en APISIX con el email como secret
+    await this.apisixService.registerConsumer(
+      request.email,
+      request.password, // username en APISIX
+    );
     return {
       message: 'User created successfully.',
     };

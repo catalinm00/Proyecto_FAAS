@@ -7,45 +7,44 @@ import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('api/v1/users/login')
 export class loginController {
-    private readonly logger = new Logger('UserController');
-    //private readonly createUserService: CreateUser;
-    /*
+  private readonly logger = new Logger('UserController');
+  //private readonly createUserService: CreateUser;
+  /*
     constructor(createUserService: CreateUser) {
       this.createUserService = createUserService;
     }*/
-    constructor(
-        private readonly checkUserService : CheckUser,
-        private readonly authService: AuthService, // Inyectar AuthService
+  constructor(
+    private readonly checkUserService: CheckUser,
+    private readonly authService: AuthService, // Inyectar AuthService
+  ) {}
 
-    ) {}
+  @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'User logged successfully.',
+  })
+  async loginUser(@Body() request: CreateUserRequest) {
+    this.logger.log('Received request: ' + request.email);
 
-    @Post()
-    @ApiResponse({
-        status: 201,
-        description: 'User logged successfully.',
-    })
-    async loginUser(@Body() request: CreateUserRequest){
-        this.logger.log("Received request: " + request.email);
+    //Verificar si está registrado
+    const command: CreateUserCommand = {
+      email: request.email,
+      password: request.password,
+    };
+    await this.checkUserService.execute(command);
 
-        //Verificar si está registrado
-        const command: CreateUserCommand = {
-            email: request.email,
-            password: request.password
-        }
-        await this.checkUserService.execute(command);
-
-        //Generar token usando email como secret
-        //ESTO DEBE DE IR EN EL HACER LOGIN
-        const token = await this.authService.generateToken({
-            /*username: request.email,
+    //Generar token usando email como secret
+    //ESTO DEBE DE IR EN EL HACER LOGIN
+    const token = await this.authService.generateToken({
+      /*username: request.email,
             email: request.email,*/
-            username: 'apiserver-key',
-            email: 'my-apiserver-secret-key',
-        });
+      key: request.email,
+      secret: request.password,
+    });
 
-        return {
-            message: 'User logged successfully.',
-            token,
-        };
-    }
+    return {
+      message: 'User logged successfully.',
+      token,
+    };
+  }
 }
