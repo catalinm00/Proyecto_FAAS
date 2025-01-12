@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../../domain/repository/user-repository';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
-import { CreateUserCommand } from '../command/create-user-command';
+import { CheckUserCommand } from '../command/check-user-command';
 import { User } from '../../domain/model/user';
 import { VoidResponse } from '../response/void-response';
 import { CryptographyService } from '../service/cryptography-service';
 import { BcryptService } from '../../infrastructure/config/criptography/bcrypt-service';
-import {CreateUserResponse} from "../response/create-user-response";
 
 @Injectable()
-export class CreateUser {
+export class CheckUser {
   private readonly userRepository: UserRepository;
   private readonly cryptographyService: CryptographyService;
-
   constructor(
     cryptographyService: BcryptService,
     userRepository: MongoUserRepository,
@@ -21,18 +19,22 @@ export class CreateUser {
     this.userRepository = userRepository;
   }
 
-  async execute(command: CreateUserCommand): Promise<CreateUserResponse> {
-    let user: User = await this.userRepository.findByEmail(command.email);
-    if (user) {
-      throw Error('User already exists');
-    }
-    const encryptedPassword = await this.cryptographyService.encrypt(
-      command.password,
-    );
-    user = await this.userRepository.save(
-      new User(command.email, encryptedPassword),
-    );
+  async execute(command: CheckUserCommand): Promise<VoidResponse> {
+    const user: User = await this.userRepository.findByEmail(command.email);
 
-    return CreateUserResponse.of(user);
+    if (!user) {
+      throw new Error('Invalid credentials');
+    }
+
+    // Comparar la contraseña ingresada con la almacenada
+    const passwordMatches = await this.cryptographyService.compare(
+      command.password,
+      user.password, // Contraseña almacenada en la base de datos
+    );
+    if (!passwordMatches) {
+      throw new Error('Invalid credentials');
+    }
+
+    return {};
   }
 }

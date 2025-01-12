@@ -5,11 +5,21 @@ import { MongoUserRepository } from './infrastructure/database/mongo-user-reposi
 import { BcryptService } from './infrastructure/config/criptography/bcrypt-service';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ApisixService } from 'src/authentication/apisix.service';
+import { CheckUser } from './application/use-case/check-user';
+import { loginController } from './infrastructure/controller/check-user-controller/check-user-controller';
+import { GetUserByIdUseCase } from './application/use-case/get-user-by-id-use-case';
 
 @Module({
   imports: [AuthenticationModule],
-  controllers: [UserController],
-  providers: [MongoUserRepository, BcryptService, CreateUser, ApisixService],
+  controllers: [UserController, loginController],
+  providers: [
+    MongoUserRepository,
+    BcryptService,
+    CreateUser,
+    ApisixService,
+    CheckUser,
+    GetUserByIdUseCase,
+  ],
   exports: [MongoUserRepository],
 })
 export class UserModule {}

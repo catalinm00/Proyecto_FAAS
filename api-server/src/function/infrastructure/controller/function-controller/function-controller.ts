@@ -1,5 +1,5 @@
 import { Body, Controller, Logger, Post, Delete } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
 import { CreateFunctionRequest } from '../request/create-function-request';
 import { CreateFunctionCommand } from 'src/function/application/command/create-function-command';
@@ -10,6 +10,7 @@ import { ExecuteFunctionRequest } from '../request/execute-function-request';
 import { ExecuteFunctionUseCase } from '../../../application/use-case/execute-function-usecase';
 import { ExecuteFunctionCommand } from '../../../application/command/execute-function-command';
 
+@ApiBearerAuth()
 @Controller('api/v1/functions')
 export class FunctionController {
   private readonly logger = new Logger('FunctionController');
