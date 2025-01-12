@@ -6,9 +6,4 @@ export class CreateFunctionRequest {
     example: 'xyz',
   })
   image: string;
-  @ApiProperty({
-    description: 'UserId of the function',
-    example: 'xyz',
-  })
-  userId: string;
 }

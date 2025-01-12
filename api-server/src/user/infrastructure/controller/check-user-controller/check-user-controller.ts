@@ -32,12 +32,12 @@ export class loginController {
       email: request.email,
       password: request.password,
     };
-    await this.checkUserService.execute(command);
+    const response = await this.checkUserService.execute(command);
 
     //Generar token usando email como secret
     //ESTO DEBE DE IR EN EL HACER LOGIN
     const token = await this.authService.generateToken(
-      new User(command.email, command.password),
+      new User(command.email, command.password, response.id),
     );
 
     return {

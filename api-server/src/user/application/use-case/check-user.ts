@@ -6,6 +6,7 @@ import { User } from '../../domain/model/user';
 import { VoidResponse } from '../response/void-response';
 import { CryptographyService } from '../service/cryptography-service';
 import { BcryptService } from '../../infrastructure/config/criptography/bcrypt-service';
+import { CheckUserResponse } from '../response/check-user-response';
 
 @Injectable()
 export class CheckUser {
@@ -19,7 +20,7 @@ export class CheckUser {
     this.userRepository = userRepository;
   }
 
-  async execute(command: CheckUserCommand): Promise<VoidResponse> {
+  async execute(command: CheckUserCommand): Promise<CheckUserResponse> {
     const user: User = await this.userRepository.findByEmail(command.email);
 
     if (!user) {
@@ -35,6 +36,6 @@ export class CheckUser {
       throw new Error('Invalid credentials');
     }
 
-    return {};
+    return CheckUserResponse.of(user);
   }
 }

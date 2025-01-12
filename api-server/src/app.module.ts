@@ -14,7 +14,6 @@ import { SharedModule } from './shared/shared.module';
       ignoreEnvFile: false,
       envFilePath: `.env.${process.env.NODE_ENV || 'devel'}`,
     }),
-    AuthenticationModule,
     UserModule,
     FunctionModule,
     SharedModule,
