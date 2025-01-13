@@ -6,10 +6,4 @@ export class DeleteFunctionRequest {
     example: '12345',
   })
   functionId: string;
-
-  @ApiProperty({
-    description: 'User ID of the function owner',
-    example: 'user-123',
-  })
-  userId: string;
 }
