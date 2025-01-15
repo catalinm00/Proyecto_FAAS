@@ -23,7 +23,6 @@ export class UserController {
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: 201,
     description: 'User created successfully.',
