@@ -112,9 +112,12 @@ export class FunctionExecutionCompletedSubscriber
       .add({
         subjects: [RESULT_STREAM + '*'],
         retention: RetentionPolicy.Workqueue,
+        name: 'results',
       })
-      .then(() => {
-        this.logger.log('Stream created');
+      .then((s) => {
+        this.logger.log(
+          'Stream created with config: ' + JSON.stringify(s.config),
+        );
       })
       .catch((reason) => {
         this.logger.error('Could not create stream', reason);
