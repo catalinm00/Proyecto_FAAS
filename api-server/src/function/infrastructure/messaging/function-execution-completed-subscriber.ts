@@ -2,41 +2,32 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Subscriber } from '../../domain/messaging/subscriber';
 import { FunctionExecutionCompletedEvent } from '../../domain/messaging/event/function-execution-completed-event';
 import { Observable, Subject } from 'rxjs';
-import {
-  AckPolicy,
-  connect,
-  JetStreamClient,
-  JetStreamManager,
-  NatsConnection,
-  RetentionPolicy,
-} from 'nats';
+import { AckPolicy, connect, JetStreamClient, JetStreamManager, NatsConnection, RetentionPolicy } from 'nats';
 import { ConfigService } from '@nestjs/config';
-
-const RESULT_STREAM: string = process.env.FUNCTION_EXECUTION_TOPIC_PREFIX;
 
 @Injectable()
 export class FunctionExecutionCompletedSubscriber
-  implements Subscriber<FunctionExecutionCompletedEvent>, OnModuleInit
-{
+  implements Subscriber<FunctionExecutionCompletedEvent>, OnModuleInit {
   private readonly logger: Logger = new Logger(
-    'FunctionExecutionCompletedSubscriber',
+    FunctionExecutionCompletedSubscriber.name,
   );
+  private readonly TOPIC_PREFIX: string;
+  private readonly RESULT_STREAM = 'results';
+  private readonly server: string;
+  private readonly maxRetries = 5;
+  private readonly retryDelay = 5000;
   private nc: NatsConnection = null;
   private jsm: JetStreamManager;
   private js: JetStreamClient;
-  private readonly topicPrefix: string;
-  private readonly server: string;
-  private readonly maxRetries = 5;
-  private readonly retryDelay = 5000; // 5 segundos
 
   constructor(configService: ConfigService) {
-    this.topicPrefix = configService.get('FUNCTION_EXECUTION_TOPIC_PREFIX');
+    this.TOPIC_PREFIX = configService.get('FUNCTION_EXECUTION_TOPIC_PREFIX');
     this.server = configService.get('NATS_SERVER');
   }
 
   async onModuleInit(): Promise<any> {
     await this.connectWithRetry();
-    this.createStream();
+    await this.createStream();
   }
 
   private async connectWithRetry(retryCount = 0): Promise<void> {
@@ -52,9 +43,7 @@ export class FunctionExecutionCompletedSubscriber
             this.retryDelay / 1000
           } seconds... (Attempt ${retryCount + 1}/${this.maxRetries})`,
         );
-        await new Promise((resolve) => {
-          setTimeout(resolve, this.retryDelay);
-        });
+        await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
         await this.connectWithRetry(retryCount + 1);
       } else {
         this.logger.error(
@@ -69,58 +58,54 @@ export class FunctionExecutionCompletedSubscriber
     if (!this.nc || this.nc.isClosed()) {
       throw new Error('NATS connection not established');
     }
-    const fullTopic = this.topicPrefix + topic;
-    this.createConsumer(fullTopic);
+    const fullTopic = `${this.TOPIC_PREFIX}${topic}`;
+    this.createConsumer(topic, fullTopic);
     const observable = new Subject<FunctionExecutionCompletedEvent>();
-    this.js.consumers.get(fullTopic, {}).then((consumer) => {
+
+    this.js.consumers.get(this.RESULT_STREAM, `api-server-result-consumer-${topic}`).then((consumer) => {
       (async () => {
-        const messages = await consumer.consume();
-        for await (const msg of messages) {
-          try {
-            const decodedMessage = JSON.parse(msg.data.toString())['data'];
-            observable.next(decodedMessage as FunctionExecutionCompletedEvent);
-            msg.ack();
-            await consumer.delete();
-          } catch (error) {
-            this.logger.error('Error processing message:', error);
-            observable.error(error);
-          }
-        }
+        const msg = await consumer.next();
+        const decodedMessage = JSON.parse(msg.data.toString());
+        observable.next(decodedMessage as FunctionExecutionCompletedEvent);
+        msg.ack();
+        await consumer.delete();
       })();
     });
 
     return observable;
   }
 
-  private createConsumer(topic: string): void {
-    this.jsm.consumers
-      .add(topic, {
-        name: `api-server-result-consumer-${topic}`,
-        durable_name: `api-server-result-consumer-${topic}`,
+  private async createConsumer(id: string, topic: string) {
+    try {
+      await this.jsm.consumers.add(this.RESULT_STREAM, {
+        name: `api-server-result-consumer-${id}`,
+        durable_name: `api-server-result-consumer-${id}`,
         ack_policy: AckPolicy.Explicit,
-      })
-      .then((r) => {
-        this.logger.log('Connected consumer: ' + r.name);
-      })
-      .catch((reason) => {
-        this.logger.error('Could not create result consumer', reason);
+        filter_subject: topic,
       });
+    } catch (error) {
+      this.logger.error('Could not create result consumer', error);
+    }
   }
 
-  private createStream() {
-    this.jsm.streams
-      .add({
-        subjects: [RESULT_STREAM + '*'],
+  private async createStream(): Promise<void> {
+    try {
+      const stream = await this.jsm.streams.info(this.RESULT_STREAM).catch(() => null);
+      if (stream) {
+        this.logger.log('Stream already exists');
+        return;
+      }
+
+      const newStream = await this.jsm.streams.add({
+        name: this.RESULT_STREAM,
+        subjects: [`${this.TOPIC_PREFIX}*`],
         retention: RetentionPolicy.Workqueue,
-        name: 'results',
-      })
-      .then((s) => {
-        this.logger.log(
-          'Stream created with config: ' + JSON.stringify(s.config),
-        );
-      })
-      .catch((reason) => {
-        this.logger.error('Could not create stream', reason);
       });
+
+      this.logger.log(`Stream created:  ${newStream.config.name}`);
+    } catch (error) {
+      this.logger.error('Error creating stream:', error);
+      throw error;
+    }
   }
 }

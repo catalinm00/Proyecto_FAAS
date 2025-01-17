@@ -3,18 +3,17 @@ services:
     image: nats:latest
     ports:
       - "4222:4222" # Puerto cliente
-      - "8222:8222" # Puerto de monitoreo
+      - "8222:8222" # Puerto de API
     environment:
       - NATS_JS_STORAGE_DIR=/data/nats-js
     volumes:
-      - ./nats-data:/data/nats-js # Volumen persistente para JetStream
+      - ./nats-data:/data/nats-js
     command: >
-      -js --store_dir /data/nats-js -m 8222
+      -js --store_dir /data/nats-js -m 8222 -DV
   worker:
     build: ./worker/
     ports:
       - "3001:3001"
-      - "9229:9229"
     env_file:
       - ./worker/.env.pro
     volumes:
@@ -55,7 +54,7 @@ services:
     user: root
     restart: always
     volumes:
-      - ../example/etcd_data:/etcd_data
+      - ../etcd/etcd_data:/etcd_data
     environment:
       ETCD_DATA_DIR: /etcd_data
       ETCD_ENABLE_V2: "true"

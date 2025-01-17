@@ -6,8 +6,8 @@ import { FunctionExecutionCompletedEvent } from "../event/function-execution-com
 import { FunctionExecutionRequestedEvent } from "../event/function-execution-requested-event";
 import { NatsJetStreamClientProxy } from "@nestjs-plugins/nestjs-nats-jetstream-transport";
 
-const FUNCTIONS_QUEUE = "functions";
-const EXECUTIONS_QUEUE = "execution/";
+const FUNCTIONS_QUEUE = process.env.FUNCTION_DISPATCHING_QUEUE || "functions";
+const EXECUTIONS_RESULTS_QUEUE = process.env.NATS_FUNCTION_RESPONSE_QUEUE || "execution.";
 
 @Controller()
 export class FunctionExecutionRequestedListener {
@@ -26,7 +26,7 @@ export class FunctionExecutionRequestedListener {
     const result = await this.executeFunctionService.execute(
       new FaasFunction(event.func.image),
     );
-    const pattern = EXECUTIONS_QUEUE + event.executionId;
+    const pattern = EXECUTIONS_RESULTS_QUEUE + event.executionId;
     this.client.emit(pattern, new FunctionExecutionCompletedEvent(result));
   }
 }

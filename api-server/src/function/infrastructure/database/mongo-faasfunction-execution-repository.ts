@@ -22,9 +22,9 @@ export class MongoFaasFunctionExecutionRepository
   }
 
   async save(execution: FaasFunctionExecution): Promise<FaasFunctionExecution> {
-    let saved = null;
+    let saved;
     if (execution.id == undefined) {
-      saved = this.prisma.faasFunctionExecution.create({
+      saved = await this.prisma.faasFunctionExecution.create({
         data: {
           id: execution.id,
           finished: execution.finished,
@@ -32,7 +32,7 @@ export class MongoFaasFunctionExecutionRepository
         },
       });
     } else {
-      saved = this.prisma.faasFunctionExecution.update({
+      saved = await this.prisma.faasFunctionExecution.update({
         where: { id: execution.id },
         data: { finished: execution.finished },
       });

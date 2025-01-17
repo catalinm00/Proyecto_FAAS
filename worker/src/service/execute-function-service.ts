@@ -24,7 +24,7 @@ export class ExecuteFunctionService {
     this.logger.log(`Execute function ${func}`);
     let logs: string = '';
     try {
-      this.pullImageIfNecessary(func.image);
+      await this.pullImageIfNecessary(func.image);
       let container: Container = await this.containerRuntime.container.create({
         Image: func.image,
         AttachStdout: true,
@@ -38,32 +38,48 @@ export class ExecuteFunctionService {
         logStream.on('end', resolve);
         logStream.on('error', reject);
       });
-      //TODO: usar un evento de dominio de función ejecutada para parar y eliminar el contenedor
-      // con tal de obtener un mejor tiempo de respuesta
       this.cleanContainer(container);
     } catch (e) {
       logs = e.toString();
     } finally {
-      this.logger.log(`Function result: ${logs}`);
-      return logs;
+      const cleanedLogs = this.cleanDockerLogs(logs);
+      this.logger.log(`Function result: ${cleanedLogs}`);
+      return cleanedLogs;
     }
   }
 
-  private pullImageIfNecessary(image: string) {
-    this.containerRuntime.image
-      .list({})
-      .then((images) =>
-        images.find((image) =>
-          image.data['RepoTags'].find((tag) => tag.includes(image)),
-        ),
-      )
-      .then((ls) =>
-        this.logger.log('Image already exist, pull is not needed'))
-      .catch(() =>
-        this.containerRuntime.image
-          .create({}, { fromImage: image})
-          .then((stream) => this.promisifyStream(stream as Stream)),
-      );
+  private async pullImageIfNecessary(imageName: string): Promise<void> {
+    try {
+      // Get list of local images
+      const images = await this.containerRuntime.image.list();
+
+      // Check if image exists locally
+      const imageExists = images.some(image => {
+        const repoTags = image.data['RepoTags'];
+        // Handle null or undefined RepoTags
+        if (!repoTags) return false;
+        // Check if image name matches any tag
+        return repoTags.some(tag => {
+          // Handle 'latest' tag if no tag specified
+          const searchName = imageName.includes(':') ? imageName : `${imageName}:latest`;
+          return tag === searchName;
+        });
+      });
+
+      if (imageExists) {
+        this.logger.log(`Image ${imageName} already exists locally`);
+        return;
+      }
+
+      // Image doesn't exist, pull it
+      this.logger.log(`Pulling image ${imageName}...`);
+      const stream = await this.containerRuntime.image.create({}, { fromImage: imageName });
+      await this.promisifyStream(stream as Stream);
+      this.logger.log(`Successfully pulled image ${imageName}`);
+    } catch (error) {
+      this.logger.error(`Failed to check/pull image ${imageName}: ${error.message}`);
+      throw new Error(`Failed to ensure image availability: ${error.message}`);
+    }
   }
 
   private promisifyStream(stream: Stream) {
@@ -72,6 +88,24 @@ export class ExecuteFunctionService {
       stream.on('end', resolve);
       stream.on('error', reject);
     });
+  }
+
+  private cleanDockerLogs(logs: string): string {
+    if (!logs) return '';
+
+    return logs
+      .split('\n')
+      .map(line => {
+        const cleaned = line.replace(/\u0001\u0000\u0000\u0000\u0000\u0000\u0000./g, '')
+          .replace(/[\u0000-\u0008\u000B-\u001F]/g, '')
+          .replace(/\\"/g, '"')
+          .replace(/\\[nr]/g, '\n');
+
+        return cleaned;
+      })
+      .filter(line => line.length > 0)
+      .join('\n')
+      .trim();
   }
 
   private async cleanContainer(container: Container) {

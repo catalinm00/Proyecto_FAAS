@@ -16,7 +16,7 @@ import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-tr
   imports: [
     NatsJetStreamTransport.register({
       connectionOptions: {
-        servers: [process.env.NATS_SERVER],
+        servers: [process.env.NATS_SERVER || 'nats://localhost:4222'],
         name: 'api-server-publisher',
       },
     }),
