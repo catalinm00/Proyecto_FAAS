@@ -3,9 +3,11 @@ import { AppModule } from "./app.module";
 import { CustomStrategy } from "@nestjs/microservices";
 import { ConfigService } from "@nestjs/config";
 import { NatsJetStreamServer } from "@nestjs-plugins/nestjs-nats-jetstream-transport";
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: ["debug"] });
+  const app = await NestFactory.create(AppModule, { logger: ["debug"], bufferLogs: true });
+  app.useLogger(app.get(Logger));
   const configService: ConfigService = app.get(ConfigService);
   const opts: CustomStrategy = {
     strategy: new NatsJetStreamServer({
