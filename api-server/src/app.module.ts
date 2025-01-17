@@ -28,7 +28,7 @@ import { LoggerModule } from 'nestjs-pino';
             colorize: true,
             timestamp: false,
             timestampKey: 'time',
-            ignore: 'pid,hostname,context',
+            ignore: 'pid,hostname,context,req',
             messageFormat: '[{context}] {msg} {req.method} {req.url}',
             translateTime: 'dd/MM/yyyy HH:MM:ss.l',
           }
