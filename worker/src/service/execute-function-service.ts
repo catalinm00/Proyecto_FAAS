@@ -50,13 +50,11 @@ export class ExecuteFunctionService {
 
   private async pullImageIfNecessary(imageName: string): Promise<void> {
     try {
-      // Get list of local images
       const images = await this.containerRuntime.image.list();
 
       // Check if image exists locally
       const imageExists = images.some(image => {
         const repoTags = image.data['RepoTags'];
-        // Handle null or undefined RepoTags
         if (!repoTags) return false;
         // Check if image name matches any tag
         return repoTags.some(tag => {
@@ -71,23 +69,13 @@ export class ExecuteFunctionService {
         return;
       }
 
-      // Image doesn't exist, pull it
       this.logger.log(`Pulling image ${imageName}...`);
-      const stream = await this.containerRuntime.image.create({}, { fromImage: imageName });
-      await this.promisifyStream(stream as Stream);
+      await this.containerRuntime.image.create({}, { fromImage: imageName });
       this.logger.log(`Successfully pulled image ${imageName}`);
     } catch (error) {
       this.logger.error(`Failed to check/pull image ${imageName}: ${error.message}`);
       throw new Error(`Failed to ensure image availability: ${error.message}`);
     }
-  }
-
-  private promisifyStream(stream: Stream) {
-    return new Promise((resolve, reject) => {
-      stream.on('data', (d) => this.logger.log(d.toString()));
-      stream.on('end', resolve);
-      stream.on('error', reject);
-    });
   }
 
   private cleanDockerLogs(logs: string): string {
