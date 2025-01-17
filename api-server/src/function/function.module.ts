@@ -9,22 +9,19 @@ import { FunctionExecutionCompletedSubscriber } from './infrastructure/messaging
 import { MongoFaasFunctionExecutionRepository } from './infrastructure/database/mongo-faasfunction-execution-repository';
 import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/function-execution-requested-publisher';
 import { UserModule } from '../user/user.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthenticationModule } from '../authentication/authentication.module';
+import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
 
 @Module({
   imports: [
+    NatsJetStreamTransport.register({
+      connectionOptions: {
+        servers: [process.env.NATS_SERVER || 'nats://localhost:4222'],
+        name: 'api-server-publisher',
+      },
+    }),
     UserModule,
     AuthenticationModule,
-    ClientsModule.register([
-      {
-        name: 'NATS_CLIENT',
-        transport: Transport.NATS,
-        options: {
-          servers: [process.env.NATS_SERVER],
-        },
-      },
-    ]),
   ],
   controllers: [FunctionController],
   providers: [

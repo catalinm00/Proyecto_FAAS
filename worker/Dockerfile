@@ -10,4 +10,4 @@ COPY . .
 RUN npm run build
 
 
-CMD [ "npm", "run", "start:compose" ]
+CMD [ "npm", "run", "start:prod" ]
