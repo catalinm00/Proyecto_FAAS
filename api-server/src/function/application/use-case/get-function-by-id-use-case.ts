@@ -4,6 +4,8 @@ import { FaasFunction } from 'src/function/domain/model/faasfunction';
 import { MongoFaasFunctionRepository } from '../../infrastructure/database/mongo-faasfunction-repository';
 import { GetFunctionByIdCommand } from '../command/get-function-by-id-command';
 import { GetFunctionByIdResponse } from '../response/get-function-by-id-response';
+import { UnauthorizedUserForFunctionException } from 'src/function/domain/exceptions/unauthorized-user-for-function-exception';
+import { FunctionNotFoundException } from 'src/function/domain/exceptions/function-not-found-exception';
 
 @Injectable()
 export class GetFunctionByIdUseCase {
@@ -20,11 +22,11 @@ export class GetFunctionByIdUseCase {
       command.functionId,
     );
     if (!faasFunction) {
-      throw new Error('Function not found');
+      throw FunctionNotFoundException;
     }
 
     if (faasFunction.userId !== command.userId) {
-      throw new Error('Unauthorized: You do not own this function');
+      throw UnauthorizedUserForFunctionException;
     }
 
     return GetFunctionByIdResponse.of(faasFunction);

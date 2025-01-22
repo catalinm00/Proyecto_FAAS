@@ -3,10 +3,10 @@ import { UserRepository } from '../../domain/repository/user-repository';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
 import { CreateUserCommand } from '../command/create-user-command';
 import { User } from '../../domain/model/user';
-import { VoidResponse } from '../response/void-response';
 import { CryptographyService } from '../service/cryptography-service';
 import { BcryptService } from '../../infrastructure/config/criptography/bcrypt-service';
-import {CreateUserResponse} from "../response/create-user-response";
+import { CreateUserResponse } from '../response/create-user-response';
+import { UserAlreadyExistsException } from 'src/user/domain/exceptions/user-already-exists-exception';
 
 @Injectable()
 export class CreateUser {
@@ -24,7 +24,7 @@ export class CreateUser {
   async execute(command: CreateUserCommand): Promise<CreateUserResponse> {
     let user: User = await this.userRepository.findByEmail(command.email);
     if (user) {
-      throw Error('User already exists');
+      throw UserAlreadyExistsException;
     }
     const encryptedPassword = await this.cryptographyService.encrypt(
       command.password,

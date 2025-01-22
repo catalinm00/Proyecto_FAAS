@@ -6,6 +6,9 @@ import { ExecuteFunctionResponse } from '../response/execute-function-response';
 import { FaasFunction } from '../../domain/model/faasfunction';
 import { User } from '../../../user/domain/model/user';
 import { FaasFunctionAssignerService } from '../service/faas-function-dispatcher/faas-function-assigner.service';
+import { FunctionNotFoundException } from 'src/function/domain/exceptions/function-not-found-exception';
+import { UserNotFoundException } from 'src/user/domain/exceptions/user-not-found-exception';
+import { UnauthorizedUserForFunctionException } from 'src/function/domain/exceptions/unauthorized-user-for-function-exception';
 
 @Injectable()
 export class ExecuteFunctionUseCase {
@@ -19,13 +22,12 @@ export class ExecuteFunctionUseCase {
     command: ExecuteFunctionCommand,
   ): Promise<ExecuteFunctionResponse> {
     let user: User | null = await this.userRepository.findById(command.userId);
-    if (!user) throw new Error('User not found');
+    if (!user) throw UserNotFoundException;
     let func: FaasFunction | null = await this.functionRepository.findById(
       command.functionId,
     );
-    if (!func) throw new Error('Function not found');
-    if (user.id !== func.userId)
-      throw new Error('User not allowed to launch function');
+    if (!func) throw FunctionNotFoundException;
+    if (user.id !== func.userId) throw UnauthorizedUserForFunctionException;
 
     let execution = await this.assigner.assign(func);
     let executionResult = await this.assigner.getResult(execution);

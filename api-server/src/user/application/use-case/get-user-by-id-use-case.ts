@@ -4,6 +4,7 @@ import { User } from '../../domain/model/user';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
 import { GetUserByIdCommand } from '../command/get-user-by-id-command';
 import { GetUserByIdResponse } from '../response/get-user-by-id-response';
+import { UserNotFoundException } from 'src/user/domain/exceptions/user-not-found-exception';
 
 @Injectable()
 export class GetUserByIdUseCase {
@@ -16,7 +17,7 @@ export class GetUserByIdUseCase {
   async execute(command: GetUserByIdCommand): Promise<GetUserByIdResponse> {
     const User: User = await this.userRepository.findById(command.userId);
     if (!User) {
-      throw new Error('User not found');
+      throw UserNotFoundException;
     }
     return GetUserByIdResponse.of(User);
   }
