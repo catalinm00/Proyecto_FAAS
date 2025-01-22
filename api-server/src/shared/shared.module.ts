@@ -1,6 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './config/db/prisma/PrismaService';
 import { SwaggerModule } from '@nestjs/swagger';
+import { AuthenticationModule } from '../authentication/authentication.module';
 
 @Global()
 @Module({

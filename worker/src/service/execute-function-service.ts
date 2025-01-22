@@ -1,7 +1,8 @@
 import { Docker } from 'node-docker-api';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { FFunction } from '../model/FFunction';
+import { FaasFunction } from '../model/faas-function';
 import { Stream } from 'stream';
+import { Container } from 'node-docker-api/lib/container';
 
 @Injectable()
 export class ExecuteFunctionService {
@@ -9,61 +10,95 @@ export class ExecuteFunctionService {
 
   constructor(
     @Inject('DOCKER_CLIENT') private readonly containerRuntime: Docker,
-  ) {}
+  ) {
+  }
 
-  async execute(func: FFunction) {
-    this.pullImageIfNecessary(func.getImage());
-    let container = await this.containerRuntime.container.create({
-      Image: func.getImage(),
-      AttachStdout: true,
-      AttachStdErr: true,
-    });
+  private readonly logOpts = {
+    follow: false,
+    stdout: true,
+    stderr: true,
+    timestamps: false,
+  };
 
-    await container.start();
+  async execute(func: FaasFunction) {
+    this.logger.log(`Execute function ${func}`);
     let logs: string = '';
-    const logStream: Stream = (await container.logs({
-      follow: false,
-      stdout: true,
-      stderr: true,
-      timestamps: true,
-    })) as Stream;
-    logStream.on('data', (d) => (logs += d.toString()));
+    try {
+      await this.pullImageIfNecessary(func.image);
+      let container: Container = await this.containerRuntime.container.create({
+        Image: func.image,
+        AttachStdout: true,
+        AttachStdErr: true,
+      });
+      await container.start();
+      const logStream: Stream = (await container.logs(this.logOpts)) as Stream;
+      logStream.on('data', (d) => (logs += d.toString()));
 
-    await new Promise((resolve, reject) => {
-      logStream.on('end', resolve);
-      logStream.on('error', reject);
-    });
-    this.logger.log('Container logs: ' + logs);
-    //TODO: usar un evento de dominio de función ejecutada para parar y eliminar el contenedor
-    // con tal de obtener un mejor tiempo de respuesta
+      await new Promise((resolve, reject) => {
+        logStream.on('end', resolve);
+        logStream.on('error', reject);
+      });
+      this.cleanContainer(container);
+    } catch (e) {
+      logs = e.toString();
+    } finally {
+      const cleanedLogs = this.cleanDockerLogs(logs);
+      this.logger.log(`Function result: ${cleanedLogs}`);
+      return cleanedLogs;
+    }
+  }
+
+  private async pullImageIfNecessary(imageName: string): Promise<void> {
+    try {
+      const images = await this.containerRuntime.image.list();
+
+      // Check if image exists locally
+      const imageExists = images.some(image => {
+        const repoTags = image.data['RepoTags'];
+        if (!repoTags) return false;
+        // Check if image name matches any tag
+        return repoTags.some(tag => {
+          // Handle 'latest' tag if no tag specified
+          const searchName = imageName.includes(':') ? imageName : `${imageName}:latest`;
+          return tag === searchName;
+        });
+      });
+
+      if (imageExists) {
+        this.logger.log(`Image ${imageName} already exists locally`);
+        return;
+      }
+
+      this.logger.log(`Pulling image ${imageName}...`);
+      await this.containerRuntime.image.create({}, { fromImage: imageName });
+      this.logger.log(`Successfully pulled image ${imageName}`);
+    } catch (error) {
+      this.logger.error(`Failed to check/pull image ${imageName}: ${error.message}`);
+      throw new Error(`Failed to ensure image availability: ${error.message}`);
+    }
+  }
+
+  private cleanDockerLogs(logs: string): string {
+    if (!logs) return '';
+
+    return logs
+      .split('\n')
+      .map(line => {
+        const cleaned = line.replace(/\u0001\u0000\u0000\u0000\u0000\u0000\u0000./g, '')
+          .replace(/[\u0000-\u0008\u000B-\u001F]/g, '')
+          .replace(/\\"/g, '"')
+          .replace(/\\[nr]/g, '\n');
+
+        return cleaned;
+      })
+      .filter(line => line.length > 0)
+      .join('\n')
+      .trim();
+  }
+
+  private async cleanContainer(container: Container) {
     await container.stop();
     await container.delete();
-    return logs;
-  }
-
-  private pullImageIfNecessary(image: string) {
-    let imageNameParts = image.split(':');
-    let tag = imageNameParts.length > 1 ? imageNameParts[1] : 'latest';
-    this.containerRuntime.image
-      .list({})
-      .then((images) =>
-        images.find((image) =>
-          image.data['RepoTags'].find((tag) => tag.includes(image)),
-        ),
-      )
-      .then(() => this.logger.log('Image already exist, pull is not needed'))
-      .catch(() =>
-        this.containerRuntime.image
-          .create({}, { fromImage: image, tag: tag })
-          .then((stream) => this.promisifyStream(stream as Stream)),
-      );
-  }
-
-  private promisifyStream(stream: Stream) {
-    return new Promise((resolve, reject) => {
-      stream.on('data', (d) => this.logger.log(d.toString()));
-      stream.on('end', resolve);
-      stream.on('error', reject);
-    });
+    this.logger.log(`Container ${container.id} removed`)
   }
 }
