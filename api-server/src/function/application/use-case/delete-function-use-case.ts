@@ -16,11 +16,11 @@ export class DeleteFunctionUseCase {
   ): Promise<DeleteFunctionResponse> {
     const func = await this.functionRepository.findById(command.functionId);
     if (!func) {
-      throw FunctionNotFoundException;
+      throw new FunctionNotFoundException();
     }
 
     if (func.userId !== command.userId) {
-      throw UnauthorizedUserForFunctionException;
+      throw new UnauthorizedUserForFunctionException();
     }
 
     await this.functionRepository.delete(func);

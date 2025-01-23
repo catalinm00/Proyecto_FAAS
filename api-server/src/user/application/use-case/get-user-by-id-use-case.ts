@@ -17,7 +17,7 @@ export class GetUserByIdUseCase {
   async execute(command: GetUserByIdCommand): Promise<GetUserByIdResponse> {
     const User: User = await this.userRepository.findById(command.userId);
     if (!User) {
-      throw UserNotFoundException;
+      throw new UserNotFoundException();
     }
     return GetUserByIdResponse.of(User);
   }

@@ -24,7 +24,7 @@ export class CreateUser {
   async execute(command: CreateUserCommand): Promise<CreateUserResponse> {
     let user: User = await this.userRepository.findByEmail(command.email);
     if (user) {
-      throw UserAlreadyExistsException;
+      throw new UserAlreadyExistsException();
     }
     const encryptedPassword = await this.cryptographyService.encrypt(
       command.password,

@@ -24,7 +24,7 @@ export class CheckUser {
     const user: User = await this.userRepository.findByEmail(command.email);
 
     if (!user) {
-      throw InvalidCredentialsException;
+      throw new InvalidCredentialsException();
     }
 
     // Comparar la contraseña ingresada con la almacenada
@@ -33,7 +33,7 @@ export class CheckUser {
       user.password, // Contraseña almacenada en la base de datos
     );
     if (!passwordMatches) {
-      throw InvalidCredentialsException;
+      throw new InvalidCredentialsException();
     }
 
     return CheckUserResponse.of(user);

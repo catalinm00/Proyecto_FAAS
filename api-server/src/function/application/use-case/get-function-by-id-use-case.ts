@@ -22,11 +22,11 @@ export class GetFunctionByIdUseCase {
       command.functionId,
     );
     if (!faasFunction) {
-      throw FunctionNotFoundException;
+      throw new FunctionNotFoundException();
     }
 
     if (faasFunction.userId !== command.userId) {
-      throw UnauthorizedUserForFunctionException;
+      throw new UnauthorizedUserForFunctionException();
     }
 
     return GetFunctionByIdResponse.of(faasFunction);

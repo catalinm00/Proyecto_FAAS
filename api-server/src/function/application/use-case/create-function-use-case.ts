@@ -23,7 +23,7 @@ export class CreateFunctionUseCase {
         command.image,
       );
     if (faasFunction) {
-      throw FunctionAlreadyExistsException;
+      throw new FunctionAlreadyExistsException();
     }
     faasFunction = new FaasFunction(command.image, command.userId);
     faasFunction = await this.functionRepository.save(faasFunction);

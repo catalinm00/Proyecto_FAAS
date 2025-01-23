@@ -22,12 +22,13 @@ export class ExecuteFunctionUseCase {
     command: ExecuteFunctionCommand,
   ): Promise<ExecuteFunctionResponse> {
     let user: User | null = await this.userRepository.findById(command.userId);
-    if (!user) throw UserNotFoundException;
+    if (!user) throw new UserNotFoundException();
     let func: FaasFunction | null = await this.functionRepository.findById(
       command.functionId,
     );
-    if (!func) throw FunctionNotFoundException;
-    if (user.id !== func.userId) throw UnauthorizedUserForFunctionException;
+    if (!func) throw new FunctionNotFoundException();
+    if (user.id !== func.userId)
+      throw new UnauthorizedUserForFunctionException();
 
     let execution = await this.assigner.assign(func);
     let executionResult = await this.assigner.getResult(execution);
