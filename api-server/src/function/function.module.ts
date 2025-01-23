@@ -11,6 +11,7 @@ import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/
 import { UserModule } from '../user/user.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthenticationModule } from '../authentication/authentication.module';
+import { GetFunctionsByUserIdUseCase } from './application/use-case/get-functions-by-user-id-use-case';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AuthenticationModule } from '../authentication/authentication.module';
     FunctionExecutionCompletedSubscriber,
     FunctionExecutionRequestedPublisher,
     MongoFaasFunctionExecutionRepository,
+    GetFunctionsByUserIdUseCase
   ],
 })
 export class FunctionModule {}

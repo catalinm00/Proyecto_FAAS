@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { FaasFunctionRepository } from 'src/function/domain/repository/faasfunction-repository';
 import { DeleteFunctionCommand } from '../command/delete-function-command';
 import { DeleteFunctionResponse } from '../response/delete-function-response';
 import { MongoFaasFunctionRepository } from 'src/function/infrastructure/database/mongo-faasfunction-repository';

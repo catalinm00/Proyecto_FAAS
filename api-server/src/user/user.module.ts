@@ -20,7 +20,7 @@ import { GetUserByIdUseCase } from './application/use-case/get-user-by-id-use-ca
     ApisixService,
     CheckUser,
     GetUserByIdUseCase,
-  , DeleteUser],
+    DeleteUser],
   exports: [MongoUserRepository],
 })
 export class UserModule {}

@@ -7,8 +7,8 @@ import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { GetUserByIdCommand } from '../../../application/command/get-user-by-id-command';
 import { GetUserByIdUseCase } from '../../../application/use-case/get-user-by-id-use-case';
 import { ApisixService } from 'src/authentication/apisix.service';
-import { DeleteUser } from '../../application/use-case/delete-user';
-import { DeleteUserRequest } from '../controller/request/delete-user-request';
+import { DeleteUser } from '../../../application/use-case/delete-user';
+import { DeleteUserRequest } from '../request/delete-user-request';
 import { DeleteUserCommand } from '../../../application/command/delete-user-command';
 
 import {CreateUserResponse} from "../../../application/response/create-user-response";
@@ -28,7 +28,6 @@ export class UserController {
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: 201,
     description: 'User created successfully.',
@@ -66,13 +65,19 @@ export class UserController {
   }
 
   @Delete()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
   @ApiResponse({
     status: 201,
     description: 'User deleted successfully.',
   })
-  async deleteUserEndpoint(@Body() deleteUserRequest: DeleteUserRequest){
-    const command = new DeleteUserCommand(deleteUserRequest.userid);
+  async deleteUserEndpoint(@Request() req){
+    const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
+    const command = new DeleteUserCommand(payload.userId);
     await this.deleteUser.execute(command);
+    return {
+      message: 'User deleted successfully.',
+    };
   }
 
 }
