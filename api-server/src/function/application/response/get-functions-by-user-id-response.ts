@@ -1,4 +1,4 @@
-export class GetUserByIdResponse {
+export class GetFunctionsByUserIdResponse {
     private readonly id: string;
     private readonly name: string;
   
@@ -7,7 +7,7 @@ export class GetUserByIdResponse {
       this.name = name;
     }
   
-    static of(id: string, name: string): GetUserByIdResponse {
-      return new GetUserByIdResponse(id, name);
+    static of(id: string, name: string): GetFunctionsByUserIdResponse {
+      return new GetFunctionsByUserIdResponse(id, name);
     }
 }

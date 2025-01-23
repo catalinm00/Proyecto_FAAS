@@ -1,11 +1,14 @@
+import { User } from '../../domain/model/user';
+
 export class DeleteUserResponse {
-    private readonly success: boolean;
+ 
+    constructor(
+        readonly id: string,
+        readonly email: string,
+    ) {}
+    
   
-    private constructor(success: boolean) {
-      this.success = success;
-    }
-  
-    static of(success: boolean): DeleteUserResponse {
-      return new DeleteUserResponse(success);
+    static of(user:User): DeleteUserResponse {
+      return new DeleteUserResponse(user.id,user.email);
     }
   }

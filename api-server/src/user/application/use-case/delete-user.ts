@@ -15,6 +15,6 @@ export class DeleteUser {
             throw new Error('User not found');
         }
         await this.userRepository.delete(user);
-        return DeleteUserResponse.of(true);
+        return DeleteUserResponse.of(user);
     } 
 }

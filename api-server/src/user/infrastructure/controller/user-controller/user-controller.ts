@@ -15,7 +15,6 @@ import { GetUserByIdCommand } from '../../../application/command/get-user-by-id-
 import { GetUserByIdUseCase } from '../../../application/use-case/get-user-by-id-use-case';
 import { ApisixService } from 'src/authentication/apisix.service';
 import { DeleteUser } from '../../../application/use-case/delete-user';
-import { DeleteUserRequest } from '../request/delete-user-request';
 import { DeleteUserCommand } from '../../../application/command/delete-user-command';
 
 import {CreateUserResponse} from "../../../application/response/create-user-response";
@@ -73,7 +72,7 @@ export class UserController {
     };
   }
 
-  @Delete()
+  @Delete('/me')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   @ApiResponse({
@@ -83,9 +82,9 @@ export class UserController {
   async deleteUserEndpoint(@Request() req){
     const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
     const command = new DeleteUserCommand(payload.userId);
-    await this.deleteUser.execute(command);
+    const response=await this.deleteUser.execute(command);
     return {
-      message: 'User deleted successfully.',
+      message: `User email ${response.email} deleted successfully.`,
     };
   }
 
