@@ -84,7 +84,7 @@ export class UserController {
     const command = new DeleteUserCommand(payload.userId);
     const response=await this.deleteUser.execute(command);
     return {
-      message: `User email ${response.email} deleted successfully.`,
+      message: response.message,
     };
   }
 

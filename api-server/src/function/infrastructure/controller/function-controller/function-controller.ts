@@ -19,7 +19,7 @@ import { ExecuteFunctionRequest } from '../request/execute-function-request';
 import { ExecuteFunctionUseCase } from '../../../application/use-case/execute-function-usecase';
 import { ExecuteFunctionCommand } from '../../../application/command/execute-function-command';
 import { GetFunctionsByUserIdUseCase } from 'src/function/application/use-case/get-functions-by-user-id-use-case';
-import { GetFunctionsByUserIdCommand } from 'src/function/application/command/get-functions-by-user-id-command';
+import { GetFunctionsByUserIdQuery } from 'src/function/application/command/get-functions-by-user-id-query';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '../../../../authentication/jwt.service';
 import { GetFunctionByIdUseCase } from 'src/function/application/use-case/get-function-by-id-use-case';
@@ -108,7 +108,7 @@ export class FunctionController {
   @Get()
   async getFunctionsByUserId(@Request() req) {
       const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
-      const command = new GetFunctionsByUserIdCommand(payload.userId);
+      const command = new GetFunctionsByUserIdQuery(payload.userId);
       const result = await this.getFunctionsByUserIdUseCase.execute(command);  
 
       return result;

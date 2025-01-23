@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { GetFunctionsByUserIdCommand } from '../command/get-functions-by-user-id-command';
 import { MongoFaasFunctionRepository } from 'src/function/infrastructure/database/mongo-faasfunction-repository';
 import { GetFunctionsByUserIdResponse} from '../response/get-functions-by-user-id-response'; 
+import { GetFunctionsByUserIdQuery } from '../command/get-functions-by-user-id-query';
 
 @Injectable()
 export class GetFunctionsByUserIdUseCase {
   constructor(private readonly repository: MongoFaasFunctionRepository) {}
 
-  async execute(command: GetFunctionsByUserIdCommand): Promise<GetFunctionsByUserIdResponse[]> {
+  async execute(command: GetFunctionsByUserIdQuery): Promise<GetFunctionsByUserIdResponse[]> {
     try {
       const functions = await this.repository.findByUserId(command.userId);
       if (!functions) {
