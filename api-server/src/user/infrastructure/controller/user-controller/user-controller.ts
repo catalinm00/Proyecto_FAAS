@@ -1,5 +1,12 @@
-import { Body, Controller, Get, Logger, Post, Request, UseGuards, Delete } from '@nestjs/common';
-import { Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Request,
+  UseGuards, Delete,
+} from '@nestjs/common';
 import { CreateUserRequest } from '../request/create-user-request';
 import { CreateUser } from '../../../application/use-case/create-user';
 import { CreateUserCommand } from '../../../application/command/create-user-command';
@@ -53,7 +60,9 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
   async getUserById(@Request() req) {
-    const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
+    const payload = this.jwtService.decodeToken(
+      req.headers.authorization.split(' ')[1],
+    );
     this.logger.log(`Returning user info with ID: ${payload.userId}`);
 
     const command = new GetUserByIdCommand(payload.userId);

@@ -2,36 +2,39 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Subscriber } from '../../domain/messaging/subscriber';
 import { FunctionExecutionCompletedEvent } from '../../domain/messaging/event/function-execution-completed-event';
 import { Observable, Subject } from 'rxjs';
-import { connect, JSONCodec, NatsConnection } from 'nats';
+import { AckPolicy, connect, JetStreamClient, JetStreamManager, NatsConnection, RetentionPolicy } from 'nats';
 import { ConfigService } from '@nestjs/config';
-import * as console from 'node:console';
-import { NatsMsg } from '@nestjs/microservices/external/nats-client.interface';
 
 @Injectable()
 export class FunctionExecutionCompletedSubscriber
-  implements Subscriber<FunctionExecutionCompletedEvent>, OnModuleInit
-{
+  implements Subscriber<FunctionExecutionCompletedEvent>, OnModuleInit {
   private readonly logger: Logger = new Logger(
-    'FunctionExecutionCompletedSubscriber',
+    FunctionExecutionCompletedSubscriber.name,
   );
-  private nc: NatsConnection = null;
-  private readonly topicPrefix: string;
+  private readonly TOPIC_PREFIX: string;
+  private readonly RESULT_STREAM = 'results';
   private readonly server: string;
   private readonly maxRetries = 5;
-  private readonly retryDelay = 5000; // 5 segundos
+  private readonly retryDelay = 5000;
+  private nc: NatsConnection = null;
+  private jsm: JetStreamManager;
+  private js: JetStreamClient;
 
   constructor(configService: ConfigService) {
-    this.topicPrefix = configService.get('FUNCTION_EXECUTION_TOPIC_PREFIX');
+    this.TOPIC_PREFIX = configService.get('FUNCTION_EXECUTION_TOPIC_PREFIX');
     this.server = configService.get('NATS_SERVER');
   }
 
   async onModuleInit(): Promise<any> {
     await this.connectWithRetry();
+    await this.createStream();
   }
 
   private async connectWithRetry(retryCount = 0): Promise<void> {
     try {
       this.nc = await connect({ servers: [this.server] });
+      this.jsm = await this.nc.jetstreamManager();
+      this.js = this.nc.jetstream();
       this.logger.log('Successfully connected to NATS server');
     } catch (error) {
       if (retryCount < this.maxRetries) {
@@ -40,7 +43,7 @@ export class FunctionExecutionCompletedSubscriber
             this.retryDelay / 1000
           } seconds... (Attempt ${retryCount + 1}/${this.maxRetries})`,
         );
-        await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+        await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
         await this.connectWithRetry(retryCount + 1);
       } else {
         this.logger.error(
@@ -55,23 +58,54 @@ export class FunctionExecutionCompletedSubscriber
     if (!this.nc || this.nc.isClosed()) {
       throw new Error('NATS connection not established');
     }
+    const fullTopic = `${this.TOPIC_PREFIX}${topic}`;
+    this.createConsumer(topic, fullTopic);
+    const observable = new Subject<FunctionExecutionCompletedEvent>();
 
-    let observable = new Subject<FunctionExecutionCompletedEvent>();
-    let subscription = this.nc.subscribe(this.topicPrefix + topic);
-
-    (async () => {
-      for await (const msg of subscription) {
-        try {
-          const decodedMessage = JSON.parse(msg.data.toString())['data'];
-          observable.next(decodedMessage as FunctionExecutionCompletedEvent);
-          subscription.unsubscribe();
-        } catch (error) {
-          this.logger.error('Error processing message:', error);
-          observable.error(error);
-        }
-      }
-    })();
+    this.js.consumers.get(this.RESULT_STREAM, `api-server-result-consumer-${topic}`).then((consumer) => {
+      (async () => {
+        const msg = await consumer.next();
+        const decodedMessage = JSON.parse(msg.data.toString());
+        observable.next(decodedMessage as FunctionExecutionCompletedEvent);
+        msg.ack();
+        await consumer.delete();
+      })();
+    });
 
     return observable;
+  }
+
+  private async createConsumer(id: string, topic: string) {
+    try {
+      await this.jsm.consumers.add(this.RESULT_STREAM, {
+        name: `api-server-result-consumer-${id}`,
+        durable_name: `api-server-result-consumer-${id}`,
+        ack_policy: AckPolicy.Explicit,
+        filter_subject: topic,
+      });
+    } catch (error) {
+      this.logger.error('Could not create result consumer', error);
+    }
+  }
+
+  private async createStream(): Promise<void> {
+    try {
+      const stream = await this.jsm.streams.info(this.RESULT_STREAM).catch(() => null);
+      if (stream) {
+        this.logger.log('Stream already exists');
+        return;
+      }
+
+      const newStream = await this.jsm.streams.add({
+        name: this.RESULT_STREAM,
+        subjects: [`${this.TOPIC_PREFIX}*`],
+        retention: RetentionPolicy.Workqueue,
+      });
+
+      this.logger.log(`Stream created:  ${newStream.config.name}`);
+    } catch (error) {
+      this.logger.error('Error creating stream:', error);
+      throw error;
+    }
   }
 }
