@@ -6,7 +6,7 @@ import { NatsJetStreamServer } from "@nestjs-plugins/nestjs-nats-jetstream-trans
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: ["debug"], bufferLogs: true });
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
   const configService: ConfigService = app.get(ConfigService);
   const opts: CustomStrategy = {
