@@ -1,26 +1,19 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Logger,
-  Post,
-  Request,
-  UseGuards, Delete,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Post, Request, UseGuards } from '@nestjs/common';
 import { CreateUserRequest } from '../request/create-user-request';
 import { CreateUser } from '../../../application/use-case/create-user';
 import { CreateUserCommand } from '../../../application/command/create-user-command';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { GetUserByIdCommand } from '../../../application/command/get-user-by-id-command';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { GetUserByIdQuery } from '../../../application/query/get-user-by-id-query';
 import { GetUserByIdUseCase } from '../../../application/use-case/get-user-by-id-use-case';
 import { ApisixService } from 'src/authentication/apisix.service';
 import { DeleteUser } from '../../../application/use-case/delete-user';
 import { DeleteUserCommand } from '../../../application/command/delete-user-command';
 
-import {CreateUserResponse} from "../../../application/response/create-user-response";
-import {User} from "../../../domain/model/user";
+import { CreateUserResponse } from '../../../application/response/create-user-response';
+import { User } from '../../../domain/model/user';
 import { JwtService } from '../../../../authentication/jwt.service';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUserByIdResponse } from '../../../application/response/get-user-by-id-response';
 
 @Controller('api/v1/users')
 export class UserController {
@@ -58,18 +51,18 @@ export class UserController {
   @Get('/me')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Returns the current user\'s data' })
+  @ApiResponse({status: 200, type: GetUserByIdResponse})
   async getUserById(@Request() req) {
     const payload = this.jwtService.decodeToken(
       req.headers.authorization.split(' ')[1],
     );
     this.logger.log(`Returning user info with ID: ${payload.userId}`);
 
-    const command = new GetUserByIdCommand(payload.userId);
-    const response = await this.getUserByIdService.execute(command);
+    const query = new GetUserByIdQuery(payload.userId);
+    const response = await this.getUserByIdService.execute(query);
 
-    return {
-      email: response.email,
-    };
+    return response;
   }
 
   @Delete('/me')
