@@ -5,6 +5,7 @@ import { MongoUserRepository } from './infrastructure/database/mongo-user-reposi
 import { BcryptService } from './infrastructure/config/criptography/bcrypt-service';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ApisixService } from 'src/authentication/apisix.service';
+import { DeleteUser } from './application/use-case/delete-user';
 import { CheckUser } from './application/use-case/check-user';
 import { loginController } from './infrastructure/controller/check-user-controller/check-user-controller';
 import { GetUserByIdUseCase } from './application/use-case/get-user-by-id-use-case';
@@ -19,7 +20,7 @@ import { GetUserByIdUseCase } from './application/use-case/get-user-by-id-use-ca
     ApisixService,
     CheckUser,
     GetUserByIdUseCase,
-  ],
+    DeleteUser],
   exports: [MongoUserRepository],
 })
 export class UserModule {}
