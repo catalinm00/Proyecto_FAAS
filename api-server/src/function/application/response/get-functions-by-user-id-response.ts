@@ -1,13 +1,17 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class GetFunctionsByUserIdResponse {
-    private readonly id: string;
-    private readonly name: string;
-  
-    private constructor(id: string, name: string) {
-      this.id = id;
-      this.name = name;
-    }
-  
-    static of(id: string, name: string): GetFunctionsByUserIdResponse {
-      return new GetFunctionsByUserIdResponse(id, name);
-    }
+  @ApiProperty({ description: 'Id of the function' })
+  private readonly id: string;
+  @ApiProperty({ description: 'Image of the function' })
+  private readonly image: string;
+
+  private constructor(id: string, image: string) {
+    this.id = id;
+    this.image = image;
+  }
+
+  static of(id: string, name: string): GetFunctionsByUserIdResponse {
+    return new GetFunctionsByUserIdResponse(id, name);
+  }
 }
