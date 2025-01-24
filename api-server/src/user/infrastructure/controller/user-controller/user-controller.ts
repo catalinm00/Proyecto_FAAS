@@ -27,6 +27,7 @@ export class UserController {
   ) {}
 
   @Post()
+  @ApiOperation({ summary: 'Creates a user' })
   @ApiResponse({
     status: 201,
     description: 'User created successfully.',
@@ -67,6 +68,7 @@ export class UserController {
 
   @Delete('/me')
   @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Deletes the current user' })
   @ApiBearerAuth()
   @ApiResponse({
     status: 201,
