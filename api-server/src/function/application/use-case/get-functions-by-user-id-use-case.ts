@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MongoFaasFunctionRepository } from 'src/function/infrastructure/database/mongo-faasfunction-repository';
 import { GetFunctionsByUserIdResponse} from '../response/get-functions-by-user-id-response'; 
-import { GetFunctionsByUserIdQuery } from '../command/get-functions-by-user-id-query';
+import { GetFunctionsByUserIdQuery } from '../query/get-functions-by-user-id-query';
 import { NoFunctionForUserFoundException } from 'src/function/domain/exceptions/no-functions-for-user-found';
 
 @Injectable()

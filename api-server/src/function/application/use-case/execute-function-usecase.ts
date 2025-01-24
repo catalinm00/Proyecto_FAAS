@@ -5,7 +5,7 @@ import { ExecuteFunctionCommand } from '../command/execute-function-command';
 import { ExecuteFunctionResponse } from '../response/execute-function-response';
 import { FaasFunction } from '../../domain/model/faasfunction';
 import { User } from '../../../user/domain/model/user';
-import { FaasFunctionAssignerService } from '../service/faas-function-dispatcher/faas-function-assigner.service';
+import { FaasFunctionAssignerService } from '../service/faas-function-assigner.service';
 import { FunctionNotFoundException } from 'src/function/domain/exceptions/function-not-found-exception';
 import { UserNotFoundException } from 'src/user/domain/exceptions/user-not-found-exception';
 import { UnauthorizedUserForFunctionException } from 'src/function/domain/exceptions/unauthorized-user-for-function-exception';

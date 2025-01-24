@@ -1,4 +1,4 @@
-export class GetUserByIdCommand {
+export class GetUserByIdQuery {
   readonly userId: string;
 
   constructor(userId: string) {
