@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { FunctionExecutionRequestedEvent } from '../../../domain/messaging/event/function-execution-requested-event';
-import { FaasFunction } from '../../../domain/model/faasfunction';
-import { FaasFunctionExecution } from '../../../domain/model/faasfunction-execution';
-import { FaasFunctionExecutionResult } from '../../../domain/model/faasfunction-execution-result';
-import { MongoFaasFunctionExecutionRepository } from '../../../infrastructure/database/mongo-faasfunction-execution-repository';
-import { FunctionExecutionRequestedPublisher } from '../../../infrastructure/messaging/function-execution-requested-publisher';
-import { FunctionExecutionCompletedSubscriber } from '../../../infrastructure/messaging/function-execution-completed-subscriber';
+import { FunctionExecutionRequestedEvent } from '../../domain/messaging/event/function-execution-requested-event';
+import { FaasFunction } from '../../domain/model/faasfunction';
+import { FaasFunctionExecution } from '../../domain/model/faasfunction-execution';
+import { FaasFunctionExecutionResult } from '../../domain/model/faasfunction-execution-result';
+import { MongoFaasFunctionExecutionRepository } from '../../infrastructure/database/mongo-faasfunction-execution-repository';
+import { FunctionExecutionRequestedPublisher } from '../../infrastructure/messaging/function-execution-requested-publisher';
+import { FunctionExecutionCompletedSubscriber } from '../../infrastructure/messaging/function-execution-completed-subscriber';
 
 @Injectable()
 export class FaasFunctionAssignerService {

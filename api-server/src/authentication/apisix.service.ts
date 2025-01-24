@@ -2,9 +2,11 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { User } from '../user/domain/model/user';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class ApisixService {
+  private readonly logger: Logger = new Logger('ApisixService');
   private readonly apisixAdminUrl: string;
   private readonly apisixAdminKey: string; // Reemplaza con tu clave administrativa de APISIX
 
@@ -28,7 +30,7 @@ export class ApisixService {
     };
 
     try {
-      console.log('Url Admin:' + this.apisixAdminUrl);
+      this.logger.log('Url Admin:' + this.apisixAdminUrl);
       await axios.put(
         `${this.apisixAdminUrl}/consumers/`, // Registra al consumidor con su email
         consumerConfig,
@@ -38,9 +40,9 @@ export class ApisixService {
           },
         },
       );
-      console.log(`Consumer ${user.email} registered successfully in APISIX`);
+      this.logger.log(`Consumer ${user.email} registered successfully in APISIX`);
     } catch (error) {
-      console.error(
+      this.logger.error(
         'Error registering consumer in APISIX:',
         error.response?.data || error.message,
       );
@@ -79,9 +81,9 @@ export class ApisixService {
           },
         },
       );
-      console.log('Global protected route created successfully in APISIX');
+      this.logger.log('Global protected route created successfully in APISIX');
     } catch (error) {
-      console.error(
+      this.logger.error(
         'Error creating global protected route in APISIX:',
         error.response?.data || error.message,
       );

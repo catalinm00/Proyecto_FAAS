@@ -5,7 +5,7 @@ import { ExecuteFunctionCommand } from '../command/execute-function-command';
 import { ExecuteFunctionResponse } from '../response/execute-function-response';
 import { FaasFunction } from '../../domain/model/faasfunction';
 import { User } from '../../../user/domain/model/user';
-import { FaasFunctionAssignerService } from '../service/faas-function-dispatcher/faas-function-assigner.service';
+import { FaasFunctionAssignerService } from '../service/faas-function-assigner.service';
 
 @Injectable()
 export class ExecuteFunctionUseCase {

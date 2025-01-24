@@ -1,4 +1,4 @@
-export class GetFunctionByIdCommand {
+export class GetFunctionByIdQuery {
   readonly functionId: string;
   readonly userId: string;
 
