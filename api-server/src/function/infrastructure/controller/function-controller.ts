@@ -4,7 +4,6 @@ import { CreateFunctionUseCase } from 'src/function/application/use-case/create-
 import { CreateFunctionRequest } from './request/create-function-request';
 import { CreateFunctionCommand } from 'src/function/application/command/create-function-command';
 import { DeleteFunctionCommand } from 'src/function/application/command/delete-function-command';
-import { DeleteFunctionRequest } from './request/delete-function-request';
 import { DeleteFunctionUseCase } from 'src/function/application/use-case/delete-function-use-case';
 import { ExecuteFunctionUseCase } from '../../application/use-case/execute-function-usecase';
 import { ExecuteFunctionCommand } from '../../application/command/execute-function-command';
@@ -13,7 +12,7 @@ import { JwtService } from '../../../authentication/jwt.service';
 import { GetFunctionByIdUseCase } from 'src/function/application/use-case/get-function-by-id-use-case';
 import { GetFunctionByIdQuery } from 'src/function/application/query/get-function-by-id-query';
 import { GetFunctionsByUserIdUseCase } from 'src/function/application/use-case/get-functions-by-user-id-use-case';
-import { GetFunctionsByUserIdQuery } from 'src/function/application/command/get-functions-by-user-id-query';
+import { GetFunctionsByUserIdQuery } from 'src/function/application/query/get-functions-by-user-id-query';
 import { CreateFunctionResponse } from '../../application/response/create-function-response';
 import { GetFunctionByIdResponse } from '../../application/response/get-function-by-id-response';
 import { GetFunctionsByUserIdResponse } from '../../application/response/get-functions-by-user-id-response';
