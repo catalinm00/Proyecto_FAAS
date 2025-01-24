@@ -16,7 +16,7 @@ export class FaasFunctionAssignerService {
   ) {}
 
   async assign(func: FaasFunction): Promise<FaasFunctionExecution> {
-    let execution = await this.executionRepository.save(
+    const execution = await this.executionRepository.save(
       FaasFunctionExecution.of(func),
     );
     await this.functionExecutionPublisher.publish(
@@ -29,7 +29,7 @@ export class FaasFunctionAssignerService {
     execution: FaasFunctionExecution,
   ): Promise<FaasFunctionExecutionResult> {
     return new Promise(async (resolve) => {
-      let subscription = this.functionResponseSubscriber.subscribe(
+      const subscription = this.functionResponseSubscriber.subscribe(
         execution.id,
       );
       subscription.subscribe((event) => {
