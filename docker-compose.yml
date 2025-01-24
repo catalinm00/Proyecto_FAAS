@@ -12,8 +12,7 @@ services:
       -js --store_dir /data/nats-js -m 8222 -DV
   worker:
     build: ./worker/
-    ports:
-      - "3001:3001"
+    restart: always
     env_file:
       - ./worker/.env.pro
     volumes:
@@ -23,13 +22,11 @@ services:
   mongo:
     image: mongodb/mongodb-atlas-local
     ports:
-      - "27017:27017"
+      - "27017:27017" # Not mandatory, for external access purposes
   api-server:
     build: ./api-server/
     env_file:
       - ./api-server/.env.pro
-    ports:
-      - "3000:3000"
     depends_on:
       - apisix
       - mongo

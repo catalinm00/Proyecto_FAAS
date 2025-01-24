@@ -64,11 +64,14 @@ export class FunctionExecutionCompletedSubscriber
 
     this.js.consumers.get(this.RESULT_STREAM, `api-server-result-consumer-${topic}`).then((consumer) => {
       (async () => {
-        const msg = await consumer.next();
-        const decodedMessage = JSON.parse(msg.data.toString());
-        observable.next(decodedMessage as FunctionExecutionCompletedEvent);
-        msg.ack();
-        await consumer.delete();
+        const msgs = await consumer.consume();
+        for await (const msg of msgs) {
+          this.logger.log("Received: "+msg.toString());
+          const decodedMessage = JSON.parse(msg.data.toString());
+          observable.next(decodedMessage as FunctionExecutionCompletedEvent);
+          msg.ack();
+          await consumer.delete();
+        }
       })();
     });
 
