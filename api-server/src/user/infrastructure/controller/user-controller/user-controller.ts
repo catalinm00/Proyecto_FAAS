@@ -76,7 +76,10 @@ export class UserController {
   })
   async deleteUserEndpoint(@Request() req){
     const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
+    
+    await this.apisixService.deleteConsumer(payload.userId);
     const command = new DeleteUserCommand(payload.userId);
+    this.logger.log(`Deleting user with ID: ${command.userId}`);
     const response=await this.deleteUser.execute(command);
     return {
       message: response.message,

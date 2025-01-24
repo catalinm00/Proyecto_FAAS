@@ -53,42 +53,28 @@ export class ApisixService {
     }
   }
 
-  /**
-   * Configurar una ruta protegida global en APISIX
-   * Protege todas las rutas bajo `/api/*` y valida tokens JWT
-   */
-  async createGlobalProtectedRoute(): Promise<void> {
-    const routeConfig = {
-      uri: '/api/*', // Protege todas las rutas que comiencen con /api/
-      plugins: {
-        'jwt-auth': {}, // Habilita la validación JWT
-      },
-      upstream: {
-        type: 'roundrobin',
-        nodes: {
-          '127.0.0.1:3000': 1, // Backend NestJS
-        },
-      },
-    };
-
+  async deleteConsumer(userId: string): Promise<void> {
     try {
-      await axios.put(
-        `${this.apisixAdminUrl}/routes/global-protected-route`, // ID único de la ruta
-        routeConfig,
+      this.logger.log('Url Admin:' + this.apisixAdminUrl);
+      
+      // Envía una solicitud DELETE al endpoint de APISIX para eliminar al consumidor
+      await axios.delete(
+        `${this.apisixAdminUrl}/consumers/${userId}`,
         {
           headers: {
             'X-API-KEY': this.apisixAdminKey,
           },
         },
       );
-      this.logger.log('Global protected route created successfully in APISIX');
+  
+      this.logger.log('Consumer ${userId} deleted successfully from APISIX');
     } catch (error) {
       this.logger.error(
-        'Error creating global protected route in APISIX:',
+        'Error deleting consumer in APISIX:',
         error.response?.data || error.message,
       );
       throw new HttpException(
-        'Failed to create global protected route in APISIX',
+        'Failed to delete consumer in APISIX',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
