@@ -1,0 +1,71 @@
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222" # Puerto cliente
+      - "8222:8222" # Puerto de API
+    environment:
+      - NATS_JS_STORAGE_DIR=/data/nats-js
+    volumes:
+      - ./nats-data:/data/nats-js
+    command: >
+      -js --store_dir /data/nats-js -m 8222 -DV
+  worker:
+    build: ./worker/
+    restart: always
+    env_file:
+      - ./worker/.env.pro
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - nats
+  mongo:
+    image: mongodb/mongodb-atlas-local
+    ports:
+      - "27017:27017" # Not mandatory, for external access purposes
+  api-server:
+    build: ./api-server/
+    env_file:
+      - ./api-server/.env.pro
+    depends_on:
+      - apisix
+      - mongo
+      - nats
+  apisix:
+    image: "apache/apisix"
+    restart: always
+    volumes:
+      - ./apisix_conf/master/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+    depends_on:
+      - etcd
+    environment:
+      ADMIN_KEY: kQxzARurYKFODMtzinIsLQeyWNaFolle
+    ports:
+      - "9180:9180/tcp"
+      - "9080:9080/tcp"
+      - "9091:9091/tcp"
+      - "9443:9443/tcp"
+
+  etcd:
+    image: bitnami/etcd:3.4.9
+    user: root
+    restart: always
+    volumes:
+      - ../etcd/etcd_data:/etcd_data
+    environment:
+      ETCD_DATA_DIR: /etcd_data
+      ETCD_ENABLE_V2: "true"
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+    ports:
+      - "2379:2379/tcp"
+
+  apisix-init:
+    image: curlimages/curl:latest
+    depends_on:
+      - apisix
+      - etcd
+    volumes:
+      - ./apisix_conf/master/configure_apisix.sh:/scripts/configure_apisix.sh:ro
+    entrypoint: [ "/bin/sh", "-c", "sleep 15 && sh /scripts/configure_apisix.sh" ]
