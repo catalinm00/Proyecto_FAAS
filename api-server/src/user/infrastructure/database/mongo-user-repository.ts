@@ -12,7 +12,7 @@ export class MongoUserRepository implements UserRepository {
   }
 
   async delete(user: User): Promise<void> {
-    this.prisma.user.delete({
+    await this.prisma.user.delete({
       where: {
         id: user.id,
       },
