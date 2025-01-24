@@ -7,6 +7,7 @@ import {
   UseGuards,
   Get,
   Request,
+  Param,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { CreateFunctionUseCase } from 'src/function/application/use-case/create-function-use-case';
@@ -23,7 +24,6 @@ import { GetFunctionsByUserIdQuery } from 'src/function/application/command/get-
 import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '../../../../authentication/jwt.service';
 import { GetFunctionByIdUseCase } from 'src/function/application/use-case/get-function-by-id-use-case';
-import { GetFunctionByIdRequest } from '../request/get-function-by-id-request';
 import { GetFunctionByIdCommand } from 'src/function/application/command/get-function-by-id-command';
 
 @ApiBearerAuth()
@@ -112,5 +112,33 @@ export class FunctionController {
       const result = await this.getFunctionsByUserIdUseCase.execute(command);  
 
       return result;
+  
+  }
+  
+  @UseGuards(AuthGuard('jwt'))
+  @Get() ///functions/{id}
+  @ApiResponse({
+    status: 201,
+    description: 'Function returned successfully.',
+  })
+  async getFunctionById(@Param('idFunction') functionId: string, @Request() req) {
+    const payload = this.jwtService.decodeToken(
+      req.headers.authorization.split(' ')[1],
+    );
+
+    this.logger.log(
+      `Returning function with ID: ${functionId} for user: ${payload.userId}`,
+    );
+
+    const command = new GetFunctionByIdCommand(functionId, payload.userId);
+    const response = await this.getFunctionByIdService.execute(command);
+
+    return {
+      message: 'Function returned successfully.',
+      id: response.functionId,
+      image: response._image,
+      userId: response._userId,
+      active: response._active,
+    };
   }
 }
