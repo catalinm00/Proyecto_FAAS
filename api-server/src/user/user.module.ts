@@ -7,12 +7,12 @@ import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ApisixService } from 'src/authentication/apisix.service';
 import { DeleteUser } from './application/use-case/delete-user';
 import { CheckUser } from './application/use-case/check-user';
-import { loginController } from './infrastructure/controller/check-user-controller/check-user-controller';
+import { LoginController } from './infrastructure/controller/check-user-controller/login-controller';
 import { GetUserByIdUseCase } from './application/use-case/get-user-by-id-use-case';
 
 @Module({
   imports: [AuthenticationModule],
-  controllers: [UserController, loginController],
+  controllers: [UserController, LoginController],
   providers: [
     MongoUserRepository,
     BcryptService,

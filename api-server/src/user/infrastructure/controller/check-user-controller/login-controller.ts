@@ -7,7 +7,7 @@ import { ApiResponse } from '@nestjs/swagger';
 import { User } from '../../../domain/model/user';
 
 @Controller('api/v1/users/login')
-export class loginController {
+export class LoginController {
   private readonly logger = new Logger('UserController');
   //private readonly createUserService: CreateUser;
   /*
