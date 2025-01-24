@@ -12,6 +12,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtService } from '../../../authentication/jwt.service';
 import { GetFunctionByIdUseCase } from 'src/function/application/use-case/get-function-by-id-use-case';
 import { GetFunctionByIdQuery } from 'src/function/application/query/get-function-by-id-query';
+import { GetFunctionsByUserIdUseCase } from 'src/function/application/use-case/get-functions-by-user-id-use-case';
+import { GetFunctionsByUserIdQuery } from 'src/function/application/command/get-functions-by-user-id-query';
+
 
 @ApiBearerAuth()
 @Controller('api/v1/functions')
@@ -24,10 +27,12 @@ export class FunctionController {
     private readonly getFunctionByIdService: GetFunctionByIdUseCase,
     private readonly executeFunctionService: ExecuteFunctionUseCase,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly getFunctionsByUserIdUseCase: GetFunctionsByUserIdUseCase,
+  ) {
+  }
 
   @Post()
-  @ApiOperation({summary: "Creates a function"})
+  @ApiOperation({ summary: 'Creates a function' })
   @UseGuards(AuthGuard('jwt'))
   @ApiResponse({
     status: 201,
@@ -49,23 +54,23 @@ export class FunctionController {
     };
   }
 
-  @Delete() ///functions/{id}
+  @Delete('/:id') ///functions/{id}
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({summary: "Removes the function with the specified id"})
+  @ApiOperation({ summary: 'Removes the function with the specified id' })
   @ApiResponse({
     status: 201,
     description: 'Function deleted successfully.',
   })
-  async deleteFunction(@Body() request: DeleteFunctionRequest, @Request() req) {
+  async deleteFunction(@Param('id') id: string, @Request() req) {
     const payload = this.jwtService.decodeToken(
       req.headers.authorization.split(' ')[1],
     );
     this.logger.log(
-      `Deleting function with ID: ${request.functionId} for user: ${payload.userId}`,
+      `Deleting function with ID: ${id} for user: ${payload.userId}`,
     );
 
     const command = new DeleteFunctionCommand(
-      request.functionId,
+      id,
       payload.userId,
     );
     await this.deleteFunctionService.execute(command);
@@ -76,7 +81,8 @@ export class FunctionController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({summary: "Executes the function with the specified id"})
+  @ApiOperation({ summary: 'Executes the function with the specified id' })
+  @ApiResponse({status: 200, type: "string"})
   @Post('/:id')
   async executeFunction(
     @Param('id') id: string,
@@ -93,8 +99,20 @@ export class FunctionController {
     return result.result;
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Returns all the functions of the current user' })
+  @Get('/me')
+  async getFunctionsByUserId(@Request() req) {
+    const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
+    const command = new GetFunctionsByUserIdQuery(payload.userId);
+    const result = await this.getFunctionsByUserIdUseCase.execute(command);
+
+    return result;
+
+  }
+
   @Get('/:id')
-  @ApiOperation({summary: "Returns the function with the specified id"})
+  @ApiOperation({ summary: 'Returns the function with the specified id' })
   @ApiResponse({
     status: 201,
     description: 'Function returned successfully.',

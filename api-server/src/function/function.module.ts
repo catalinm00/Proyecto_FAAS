@@ -11,6 +11,7 @@ import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/
 import { UserModule } from '../user/user.module';
 import { AuthenticationModule } from '../authentication/authentication.module';
 import { NatsJetStreamTransport } from '@nestjs-plugins/nestjs-nats-jetstream-transport';
+import { GetFunctionsByUserIdUseCase } from './application/use-case/get-functions-by-user-id-use-case';
 import { GetFunctionByIdUseCase } from './application/use-case/get-function-by-id-use-case';
 
 @Module({
@@ -35,7 +36,8 @@ import { GetFunctionByIdUseCase } from './application/use-case/get-function-by-i
     FunctionExecutionCompletedSubscriber,
     FunctionExecutionRequestedPublisher,
     MongoFaasFunctionExecutionRepository,
-    GetFunctionByIdUseCase,
+    GetFunctionsByUserIdUseCase,
+    GetFunctionByIdUseCase
   ],
 })
 export class FunctionModule {}
