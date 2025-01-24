@@ -3,10 +3,10 @@ import { UserRepository } from '../../domain/repository/user-repository';
 import { MongoUserRepository } from '../../infrastructure/database/mongo-user-repository';
 import { CheckUserCommand } from '../command/check-user-command';
 import { User } from '../../domain/model/user';
-import { VoidResponse } from '../response/void-response';
 import { CryptographyService } from '../service/cryptography-service';
 import { BcryptService } from '../../infrastructure/config/criptography/bcrypt-service';
 import { CheckUserResponse } from '../response/check-user-response';
+import { InvalidCredentialsException } from 'src/user/domain/exceptions/invalid-credentials-exception';
 
 @Injectable()
 export class CheckUser {
@@ -24,7 +24,7 @@ export class CheckUser {
     const user: User = await this.userRepository.findByEmail(command.email);
 
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsException();
     }
 
     // Comparar la contraseña ingresada con la almacenada
@@ -33,7 +33,7 @@ export class CheckUser {
       user.password, // Contraseña almacenada en la base de datos
     );
     if (!passwordMatches) {
-      throw new Error('Invalid credentials');
+      throw new InvalidCredentialsException();
     }
 
     return CheckUserResponse.of(user);

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class JwtService {
     try {
       return jwt.verify(token, this.secretKey);
     } catch (error) {
-      throw new Error(error + ' Invalid token');
+      throw new UnauthorizedException(error + ' Invalid token');
     }
   }
 

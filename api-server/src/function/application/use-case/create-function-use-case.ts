@@ -4,6 +4,7 @@ import { CreateFunctionCommand } from '../command/create-function-command';
 import { CreateFunctionResponse } from '../response/create-function-response';
 import { FaasFunction } from 'src/function/domain/model/faasfunction';
 import { MongoFaasFunctionRepository } from '../../infrastructure/database/mongo-faasfunction-repository';
+import { FunctionAlreadyExistsException } from 'src/function/domain/exceptions/function-already-exists-exception';
 
 @Injectable()
 export class CreateFunctionUseCase {
@@ -22,7 +23,7 @@ export class CreateFunctionUseCase {
         command.image,
       );
     if (faasFunction) {
-      throw new Error('Error - Function already exists!');
+      throw new FunctionAlreadyExistsException();
     }
     faasFunction = new FaasFunction(command.image, command.userId);
     faasFunction = await this.functionRepository.save(faasFunction);
