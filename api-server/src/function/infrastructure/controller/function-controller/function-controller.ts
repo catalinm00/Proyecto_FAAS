@@ -105,7 +105,7 @@ export class FunctionController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get()
+  @Get("/getfunctions")
   async getFunctionsByUserId(@Request() req) {
       const payload = this.jwtService.decodeToken(req.headers.authorization.split(' ')[1]);
       const command = new GetFunctionsByUserIdQuery(payload.userId);
@@ -116,12 +116,12 @@ export class FunctionController {
   }
   
   @UseGuards(AuthGuard('jwt'))
-  @Get() ///functions/{id}
+  @Get('/:id') ///functions/{id}
   @ApiResponse({
     status: 201,
     description: 'Function returned successfully.',
   })
-  async getFunctionById(@Param('idFunction') functionId: string, @Request() req) {
+  async getFunctionById(@Param('id') functionId: string, @Request() req) {
     const payload = this.jwtService.decodeToken(
       req.headers.authorization.split(' ')[1],
     );
