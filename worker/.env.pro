@@ -1,4 +1,9 @@
 DOCKER_DAEMON_HOST="/var/run/docker.sock"
 NATS_SERVER='nats://nats:4222'
-FUNCTION_DISPATCHING_QUEUE='functions'
+FUNCTION_DISPATCHING_QUEUE='functions-queue'
 NATS_FUNCTION_RESPONSE_QUEUE='execution.'
+AWS_REGION=us-east-1
+AWS_SQS_ENDPOINT=http://localstack:4566
+AWS_SNS_ENDPOINT=http://localstack:4566
+FUNCTION_EXECUTION_TOPIC_PREFIX=execution
+FUNCTION_DISPATCHING_QUEUE_URL="https://sqs.us-east-1.amazonaws.com/974349055189/functions-queue"

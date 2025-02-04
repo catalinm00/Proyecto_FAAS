@@ -1,15 +1,15 @@
 services:
-  nats:
-    image: nats:latest
+  localstack:
+    image: localstack/localstack:latest
     ports:
-      - "4222:4222" # Puerto cliente
-      - "8222:8222" # Puerto de API
+      - "4566:4566"
     environment:
-      - NATS_JS_STORAGE_DIR=/data/nats-js
+      - SERVICES=sqs,sns
+      - DEFAULT_REGION=us-east-1
+      - DEBUG=1
     volumes:
-      - ./nats-data:/data/nats-js
-    command: >
-      -js --store_dir /data/nats-js -m 8222 -DV
+      - ./localstack_data:/tmp/localstack
+ 
   worker:
     build: ./worker/
     restart: always
@@ -18,11 +18,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - nats
+      - localstack
+ 
   mongo:
     image: mongodb/mongodb-atlas-local
     ports:
-      - "27017:27017" # Not mandatory, for external access purposes
+      - "27017:27017"
+ 
   api-server:
     build: ./api-server/
     env_file:
@@ -30,7 +32,8 @@ services:
     depends_on:
       - apisix
       - mongo
-      - nats
+      - localstack
+ 
   apisix:
     image: "apache/apisix"
     restart: always
@@ -45,7 +48,7 @@ services:
       - "9080:9080/tcp"
       - "9091:9091/tcp"
       - "9443:9443/tcp"
-
+ 
   etcd:
     image: bitnami/etcd:3.4.9
     user: root
@@ -60,7 +63,7 @@ services:
       ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
     ports:
       - "2379:2379/tcp"
-
+ 
   apisix-init:
     image: curlimages/curl:latest
     depends_on:

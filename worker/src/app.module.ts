@@ -3,20 +3,24 @@ import { ConfigModule } from "@nestjs/config";
 import { FunctionExecutionRequestedListener } from "./messaging/listener/FunctionExecutionRequestedListener";
 import { DockerClient } from "./config/docker";
 import { ExecuteFunctionService } from "./service/execute-function-service";
-import { NatsJetStreamTransport } from "@nestjs-plugins/nestjs-nats-jetstream-transport";
+import { SqsModule } from '@ssut/nestjs-sqs';
 import { LoggerModule } from 'nestjs-pino';
-
+ 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || "dev"}`,
     }),
-    NatsJetStreamTransport.register({
-      connectionOptions: {
-        servers: [process.env.NATS_SERVER || "nats://localhost:4222"],
-        name: "worker-result-publisher",
-      },
+    SqsModule.register({
+      consumers: [
+        {
+          name: process.env.FUNCTION_DISPATCHING_QUEUE,
+          queueUrl: process.env.FUNCTION_DISPATCHING_QUEUE_URL,
+          region: process.env.AWS_REGION,
+          //endpoint: process.env.AWS_SQS_ENDPOINT,
+        },
+      ],
     }),
     LoggerModule.forRoot({
       pinoHttp: {
