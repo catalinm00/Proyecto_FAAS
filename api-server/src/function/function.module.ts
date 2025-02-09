@@ -10,33 +10,11 @@ import { MongoFaasFunctionExecutionRepository } from './infrastructure/database/
 import { FunctionExecutionRequestedPublisher } from './infrastructure/messaging/function-execution-requested-publisher';
 import { UserModule } from '../user/user.module';
 import { AuthenticationModule } from '../authentication/authentication.module';
-import { SqsModule } from '@ssut/nestjs-sqs';
 import { GetFunctionsByUserIdUseCase } from './application/use-case/get-functions-by-user-id-use-case';
 import { GetFunctionByIdUseCase } from './application/use-case/get-function-by-id-use-case';
- 
+
 @Module({
-  imports: [
-    SqsModule.register({
-      consumers: [
-        {
-          name: process.env.FUNCTION_DISPATCHING_QUEUE,
-          queueUrl: process.env.FUNCTION_DISPATCHING_QUEUE_URL,
-          region: process.env.AWS_REGION,
-          //endpoint: process.env.AWS_SQS_ENDPOINT,
-        },
-      ],
-      producers: [
-        {
-          name: process.env.FUNCTION_DISPATCHING_QUEUE,
-          queueUrl: process.env.FUNCTION_DISPATCHING_QUEUE_URL,
-          region: process.env.AWS_REGION,
-          //endpoint: process.env.AWS_SQS_ENDPOINT,
-        },
-      ],
-    }),
-    UserModule,
-    AuthenticationModule,
-  ],
+  imports: [UserModule, AuthenticationModule],
   controllers: [FunctionController],
   providers: [
     MongoFaasFunctionRepository,
