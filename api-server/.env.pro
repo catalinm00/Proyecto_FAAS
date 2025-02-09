@@ -10,6 +10,6 @@ AWS_SQS_ENDPOINT=http://localstack:4566
 AWS_SNS_ENDPOINT=http://localstack:4566
 FUNCTION_DISPATCHING_QUEUE=functions-queue
 #FUNCTION_DISPATCHING_QUEUE_URL="https://sqs.us-east-1.amazonaws.com/974349055189/functions-queue"
-FUNCTION_DISPATCHING_QUEUE_URL=http://sqs.eu-west-1.localhost.localstack.cloud:4566/000000000000/functions-queue
+FUNCTION_DISPATCHING_QUEUE_URL=http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/functions-queue
 AWS_ACCESS_KEY_ID=localstack
 AWS_SECRET_ACCESS_KEY=localstack

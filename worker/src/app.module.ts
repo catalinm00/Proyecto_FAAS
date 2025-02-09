@@ -20,7 +20,7 @@ import { LoggerModule } from "nestjs-pino";
               name: process.env.FUNCTION_DISPATCHING_QUEUE,
               queueUrl: process.env.FUNCTION_DISPATCHING_QUEUE_URL,
               region: process.env.AWS_REGION,
-              useQueueUrlAsEndpoint: true,
+
             },
           ],
         };
