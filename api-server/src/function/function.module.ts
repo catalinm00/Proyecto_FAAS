@@ -25,6 +25,14 @@ import { GetFunctionByIdUseCase } from './application/use-case/get-function-by-i
           //endpoint: process.env.AWS_SQS_ENDPOINT,
         },
       ],
+      producers: [
+        {
+          name: process.env.FUNCTION_DISPATCHING_QUEUE,
+          queueUrl: process.env.FUNCTION_DISPATCHING_QUEUE_URL,
+          region: process.env.AWS_REGION,
+          //endpoint: process.env.AWS_SQS_ENDPOINT,
+        },
+      ],
     }),
     UserModule,
     AuthenticationModule,

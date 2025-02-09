@@ -1,15 +1,4 @@
 services:
-  localstack:
-    image: localstack/localstack:latest
-    ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=sqs,sns
-      - DEFAULT_REGION=us-east-1
-      - DEBUG=1
-    volumes:
-      - ./localstack_data:/tmp/localstack
- 
   worker:
     build: ./worker/
     restart: always
@@ -17,8 +6,6 @@ services:
       - ./worker/.env.pro
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - localstack
  
   mongo:
     image: mongodb/mongodb-atlas-local
@@ -32,7 +19,6 @@ services:
     depends_on:
       - apisix
       - mongo
-      - localstack
  
   apisix:
     image: "apache/apisix"
